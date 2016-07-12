@@ -8,8 +8,8 @@ Optinal Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/py
 
 ## Tools
 #### Smart Align - (Revit 2015 Only)
-Alignment tools for Revit. Handles a variety of objects, including annotations, rooms, and family instances.
-[Demo](https://www.dropbox.com/s/0fpxxx7twrp51mo/2016-07-12%2018-48-58.flv?dl=0)
+* Alignment tools for Revit. Handles a variety of objects, including annotations, rooms, and family instances.
+* [Demo](https://www.dropbox.com/s/0fpxxx7twrp51mo/2016-07-12%2018-48-58.flv?dl=0)
 
 ## Credits
 * [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
