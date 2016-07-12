@@ -11,6 +11,10 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+# TO DO:
+# 2016 Compatibility: Elements.Selection
+# http://thebuildingcoder.typepad.com/blog/2015/06/cnc-direct-export-wall-parts-to-dxf-and-sat.html#2015.1
+
 
 from Autodesk.Revit.DB import XYZ
 from Autodesk.Revit.DB import Transaction
@@ -22,7 +26,6 @@ uidoc = __revit__.ActiveUIDocument
 __doc__ = 'Smart Align'
 __author__ = 'gtalarico@gmail.com'
 TOLERANCE = 0.000001
-
 
 class Justification():
 
