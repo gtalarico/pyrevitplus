@@ -15,6 +15,17 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 # 2016 Compatibility: Elements.Selection
 # http://thebuildingcoder.typepad.com/blog/2015/06/cnc-direct-export-wall-parts-to-dxf-and-sat.html#2015.1
 
+import logging
+
+LOG_LEVEL = logging.ERROR
+# LOG_LEVEL = logging.DEBUG
+
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger('SmarAlign')
+
+# True to Keep Window Open
+verbose = True
+# verbose = False
 
 from Autodesk.Revit.DB import XYZ
 from Autodesk.Revit.DB import Transaction
@@ -74,10 +85,12 @@ class PointCollection(object):
         x_avg = sum(x_values)/len(x_values)
         y_avg = sum(y_values)/len(y_values)
         z_avg = sum(z_values)/len(z_values)
-        # print('X >', str(x_values))
-        # print('Y >', str(y_values))
-        # print('Z >', str(z_values))
-        # print('FINAL >', str(PointElement(x_avg, y_avg, z_avg)))
+        logger.debug('Average Point Collection:')
+        logger.debug('In X > {}'.format(str(x_values)))
+        logger.debug('In Y > {}'.format(str(y_values)))
+        logger.debug('In Z > {}'.format(str(z_values)))
+        logger.debug('Final > {}'.format(PointElement(x_avg, y_avg, z_avg)))
+
         return PointElement(x_avg, y_avg, z_avg)
 
     @property
@@ -171,30 +184,31 @@ def get_location(element, align):
     ''' ADD DOC '''
     align_method = Justification.method[align]
 
-    #Try Room Method First
-    try:
+    try:  # Try Room Method First
         room_point = element.Location.Point
     except:
-        pass
-        # print('Is not a room. Trying bbox...')
+        logger.debug('Is not a room. Trying bbox...')
     else:
-        # print('Sweet: Got room center')
+        logger.debug('Sweet: Got room center')
         return PointElement(room_point.X, room_point.Y, room_point.Z)
 
-    #Try Then Bounding Box
-    try:
+    try:  # Not Room: Try Bounding Box Method
         bbox = BoundingBoxElement(element)
     except:
-        pass
-        # print('Failed. Could not get BBox for:{}'.format(type(element)))
+        logger.debug('Could not get BBox for:{}'.format(type(element)))
     else:
-        # print('Sweet. Got Bounding Box.')
+        logger.debug('Sweet. Got Bounding Box.')
         return getattr(bbox, align_method)
 
-    # print('Failed to Point for: '. type(element))
+    # If got to this point, it failed.
+    logger.warning('Failed to get location for: {}'.format(str(type(element))))
 
 
 def main(ALIGN):
+    """ Main Smart Align Funciton.
+    ALIGN argument define align method (min, max, average)
+    and axis (X, Y) based on Justification class
+    """
     axis = Justification.axis[ALIGN]
 
     point_collection = PointCollection()
@@ -212,28 +226,29 @@ def main(ALIGN):
     t.Start()
 
     for point_element in point_collection:
+
+        #  delta is the distance the object needs to travel on selected axis.
         delta = getattr(average_target, axis) - getattr(point_element, axis)
-        # print('Delta is:', str(delta))
-        # if False and abs(delta) < TOLERANCE:
-            # pass
-            # print('Translation smaller than tolerance')
-        if True:
-            delta_vector = PointElement(0, 0, 0)
-            setattr(delta_vector, axis, delta)
-            translation = XYZ(*delta_vector.as_tuple)
-            # print('translation:', str(translation))
+
+        logger.debug('Delta is: {}'.format(str(delta)))
+        if abs(delta) < TOLERANCE:
+            logger.info('Translation smaller than tolerance. Skipping...')
+
+        else:
+            delta_vector = PointElement(0, 0, 0)  # Blank Vector
+            setattr(delta_vector, axis, delta)    # Replace Axis with Delta
+            translation_vector = XYZ(*delta_vector.as_tuple)  # Revit PTvector
+            logger.debug('Translation: {}'.format(str(translation_vector)))
             try:
-                point_element.element.Location.Move(translation)
-                # ElementTransformUtils.MoveElement(doc, point_element.element.Id, translation)
+                point_element.element.Location.Move(translation_vector)
+                # ElementTransformUtils.MoveElement(
+                # doc, point_element.element.Id, translation_vector)
             except:
-                pass
-                # print('Failed Moving Object:', type(point_element.element))
+                logger.error('Failed Moving Object: {}'.format(
+                             type(point_element.element)))
             else:
-                pass
-                # print('Moved: ' + str(type(point_element.element)))
-    # print('Done.')
+                logger.debug('Moved: {}'.format(
+                             str(type(point_element.element))))
+    logger.info('Done.')
 
     t.Commit()
-
-verbose = True
-verbose = False
