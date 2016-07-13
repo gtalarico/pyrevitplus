@@ -23,14 +23,14 @@ __version = '0.0.2'
 import logging
 
 LOG_LEVEL = logging.ERROR
-LOG_LEVEL = logging.DEBUG
+#LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger('SmarAlign')
 
 # True to Keep Window Open
 verbose = True
-# verbose = False
+verbose = False
 
 from Autodesk.Revit.DB import XYZ
 from Autodesk.Revit.DB import Transaction
