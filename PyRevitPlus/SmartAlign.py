@@ -271,12 +271,12 @@ def main(ALIGN):
     point_collection = PointCollection()
     selection = uidoc.Selection
     selection_ids = selection.GetElementIds()
-    selection_size = selection_ids.Count
+    #selection_size = selection_ids.Count
     logger.debug('selection_size: {}'.format(selection_size))
     # selection = uidoc.Selection.Elements  # Revit 2015
     if not selection_ids:
         logger.error('No Elements Selected')
-        # return
+       return
     # for element in selection:
     for element_id in selection_ids:
         element = doc.GetElement(element_id)
