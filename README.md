@@ -1,6 +1,6 @@
 # PyRevit Plus
 
-Optinal Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/master/README.md)
+Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/master/README.md)
 
 ## Installation
 * [Install PyRevit](https://github.com/eirannejad/pyRevit/)
