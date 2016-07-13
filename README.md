@@ -8,12 +8,19 @@ Optinal Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/py
 
 ## Tools
 #### Smart Align - (Revit 2015 Only)
-* Alignment tools for Revit. Handles a variety of objects, including annotations, rooms, and family instances.
-* [Demo](https://www.dropbox.com/s/0fpxxx7twrp51mo/2016-07-12%2018-48-58.flv?dl=0)
+* Alignment tools for Revit. Handles a variety of objects, including annotations, rooms, and several types of family instances. Demo videos:
+* [Doors](https://www.dropbox.com/s/wgczdhv7esplywv/Doors.flv?dl=0)
+* [Filled Regions](https://www.dropbox.com/s/0fpxxx7twrp51mo/Filed%20Regions.flv?dl=0)
+* [Rooms](https://www.dropbox.com/s/626mje9hwoxzzea/Rooms.flv?dl=0)
+* [Text](https://www.dropbox.com/s/70i8txw56iz4ujd/Text.flv?dl=0)
+* [Walls](https://www.dropbox.com/s/qj6o3bv6x9q0ezn/Walls.flv?dl=0)
 
 ## Credits
 * [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
 * Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
-* Revit 2016 + 2017 Compatibility
+* Add Distribute Horizontally + Verically
+* Add/Text 3D Alignment
+* Check 2017 Compatibility
+* Refactor Justification Class
