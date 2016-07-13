@@ -17,6 +17,7 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 
 ## Credits
 * [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
+* [Icons8](https://icons8.com/) and its contributors for the sweet free icons
 * Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
