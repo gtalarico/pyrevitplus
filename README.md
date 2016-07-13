@@ -7,7 +7,7 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * Copy PyRevitPlus folder into the PyRevit Folder (same folder where __init__.py and LICENSE are)
 
 ## Tools
-#### Smart Align - (Revit 2015 Only)
+#### Smart Align - (Tested Revit 2015+2016)
 * Alignment tools for Revit. Handles a variety of objects, including annotations, rooms, and several types of family instances. Demo videos:
 * [Doors](https://www.dropbox.com/s/wgczdhv7esplywv/Doors.flv?dl=0)
 * [Filled Regions](https://www.dropbox.com/s/0fpxxx7twrp51mo/Filed%20Regions.flv?dl=0)
