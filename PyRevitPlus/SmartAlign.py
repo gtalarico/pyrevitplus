@@ -2,23 +2,28 @@
 Copyright (c) 2014-2016 Gui Talarico
 
 Smart Align
-Smart Align is part of PyRevit Plus Optional Extensions for PyRevit
+is part of PyRevitPlus: Extensions for PyRevit
 github.com/gtalarico | gtalarico@gmail.com
 
 --------------------------------------------------------
-
+PyRevit Notice:
 Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+
+__author__ = 'gtalarico@gmail.com'
+__version = '0.0.2'
+
 # TO DO:
-# 2016 Compatibility: Elements.Selection
-# http://thebuildingcoder.typepad.com/blog/2015/06/cnc-direct-export-wall-parts-to-dxf-and-sat.html#2015.1
+# Arrange/Distribute Obects
+# 3D (z axis) capability
+# Add Compatibility for Window Family (x + y are reversed)
 
 import logging
 
 LOG_LEVEL = logging.ERROR
-# LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger('SmarAlign')
@@ -34,11 +39,21 @@ from Autodesk.Revit.DB import Transaction
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
-__doc__ = 'Smart Align'
-__author__ = 'gtalarico@gmail.com'
 TOLERANCE = 0.000001
 
+
 class Justification():
+    """ Justification Class.
+    This class defines the name, location method, and axis for each
+    alignment type
+
+    TO DO:
+    + Use class instanciation
+    + Refactor Name Just > Alignment
+    alignment = Justification('HCENTER')
+    alignment.axis    # returns x or y
+    alignment.method  # returns min, max, average
+    """
 
     VCENTER = 'Vertical Center'
     VTOP = 'Vertical Top'
@@ -47,26 +62,29 @@ class Justification():
     HLEFT = 'Horiztontal Left'
     HRIGHT = 'Horizontal Right'
 
-    method = {
-              VCENTER: 'average',
-              VTOP: 'max',
-              VBOTTOM: 'min',
-              HCENTER: 'average',
-              HLEFT: 'min',
-              HRIGHT: 'max'
-              }
-    axis = {
-              VCENTER: 'Y',
-              VTOP: 'Y',
-              VBOTTOM: 'Y',
-              HCENTER: 'X',
-              HLEFT: 'X',
-              HRIGHT: 'X'
-              }
+    method = {VCENTER: 'average', VTOP: 'max', VBOTTOM: 'min',
+              HCENTER: 'average', HLEFT: 'min', HRIGHT: 'max'}
+    axis = {VCENTER: 'Y', VTOP: 'Y', VBOTTOM: 'Y',
+            HCENTER: 'X', HLEFT: 'X', HRIGHT: 'X'}
 
 
 class PointCollection(object):
-    ''' ADD DOC'''
+    """ Provides methods for getting calculated values from list of Points.
+    Usage:
+    points = [p1,p2,p3,p4, ...]
+    point_collection = PointCollection(*points)
+    or
+    point_collection = PointCollection(pt1, pt2, pt)
+    or
+    point_collection = PointCollection() - then
+    point_collection.points = [p1, p2, p3]
+    Note: Supplied point objects must have attributes .X, .Y, and .Z
+
+    Properties:
+    point_collection.average
+    point_collection.min
+    point_collection.max
+    """
     def __init__(self, *points):
         self.points = list(points)
 
@@ -76,9 +94,11 @@ class PointCollection(object):
 
     @property
     def average(self):
-        ''' Returns PointElement Average of list of point objects.
+        """ Returns PointElement representing average of point collection.
         PointElement objects must support X,Y,Z attributes.
-        '''
+        points = [(0,0,0), (4,4,2)]
+        points.average = (2,2,1)
+        """
         x_values = [point.X for point in self.points]
         y_values = [point.Y for point in self.points]
         z_values = [point.Z for point in self.points]
@@ -95,9 +115,12 @@ class PointCollection(object):
 
     @property
     def max(self):
-        ''' Returns PointElement Average of list of point objects.
+        """ Returns PointElement representing MAXIMUM of point collection.
         PointElement objects must support X,Y,Z attributes.
-        '''
+        Example:
+        points = [(0,0,5), (2,2,2)]
+        points.max = (2,2,5)
+        """
         x_values = [point.X for point in self.points]
         y_values = [point.Y for point in self.points]
         z_values = [point.Z for point in self.points]
@@ -108,9 +131,12 @@ class PointCollection(object):
 
     @property
     def min(self):
-        ''' Returns PointElement of lowest point of list of point objects.
+        """ Returns PointElement representing MINIMUM of point collection.
         PointElement objects must support X,Y,Z attributes.
-        '''
+        Example:
+        points = [(0,0,5), (2,2,2)]
+        points.min = (0,0,2)
+        """
         x_values = [point.X for point in self.points]
         y_values = [point.Y for point in self.points]
         z_values = [point.Z for point in self.points]
@@ -121,13 +147,31 @@ class PointCollection(object):
 
 
 class PointElement(object):
-    ''' ADD DOC '''
+    """ Similar to Revit XYZ, but also stores associated element.
+    Includes magic methods for addition and subtraciton of points.
+    Usage:
+    point_element = PointElement(0,0,0)
+    point_element.element = revit_element
+    or
+    point_element = get_location(element, ALIGN)
+    if point_element:
+        point_element.element = element
+
+    PointElement(2,2,2) + PointElement(2,2,2):
+    PointElement(4,4,4)
+
+    Methods:
+    point_element.as_tuple: (x, y,z)
+
+    ignore_z: not implemented
+    """
     def __init__(self, X, Y, Z, element=None, ignore_z=False):
         self.X = X
         self.Y = Y
         self.Z = Z
         self.element = element
         if ignore_z:
+            raise NotImplementedError
             self.Z = 0
 
     @property
@@ -152,11 +196,20 @@ class PointElement(object):
 
 
 class BoundingBoxElement(object):
+    """ BoundingBoxElement receives a Revit Object for access to properties.
+    Usage:
+    bbox = BoundingBoxElement(element)
+    bbox.element: element
+    Properties:
+    bbox.min: min coordinate of bounding box
+    bbox.max: min coordinate of bounding box
+    bbox.average: min coordinate of bounding box
+
+    """
 
     def __init__(self, element):
         self.element = element
         self.bbox = element.get_BoundingBox(doc.ActiveView)
-        # bbox = Revit BoundingBoxElement
 
     @property
     def min(self):
@@ -184,24 +237,26 @@ def get_location(element, align):
     ''' ADD DOC '''
     align_method = Justification.method[align]
 
-    try:  # Try Room Method First
-        room_point = element.Location.Point
+    try:  # Try .Location Method First - Needed for Rooms
+        location_pt = element.Location.Point
     except:
-        logger.debug('Is not a room. Trying bbox...')
+        logger.debug('Could not get .Location. Trying bbox...')
     else:
-        logger.debug('Sweet: Got room center')
-        return PointElement(room_point.X, room_point.Y, room_point.Z)
+        location_pt = PointElement(location_pt.X, location_pt.Y, location_pt.Z)
+        logger.debug('Got Location from .Location: {}'.format(location_pt))
+        return location_pt
 
     try:  # Not Room: Try Bounding Box Method
         bbox = BoundingBoxElement(element)
     except:
         logger.debug('Could not get BBox for:{}'.format(type(element)))
     else:
-        logger.debug('Sweet. Got Bounding Box.')
-        return getattr(bbox, align_method)
+        location_pt = getattr(bbox, align_method)  # min, max, or average
+        logger.debug('Got Location by Bounding Box: {}'.format(location_pt))
+        return location_pt
 
     # If got to this point, it failed.
-    logger.warning('Failed to get location for: {}'.format(str(type(element))))
+    logger.warning('Failed to get_location for: {}'.format(str(type(element))))
 
 
 def main(ALIGN):
@@ -210,17 +265,28 @@ def main(ALIGN):
     and axis (X, Y) based on Justification class
     """
     axis = Justification.axis[ALIGN]
+    logger.debug('ALIGN: {}'.format(ALIGN))
+    logger.debug('AXIS: {}'.format(axis))
 
     point_collection = PointCollection()
-    selection = uidoc.Selection.Elements
-
-    for element in selection:
+    selection = uidoc.Selection
+    selection_ids = selection.GetElementIds()
+    selection_size = selection_ids.Count
+    logger.debug('selection_size: {}'.format(selection_size))
+    # selection = uidoc.Selection.Elements  # Revit 2015
+    if not selection_ids:
+        logger.error('No Elements Selected')
+        # return
+    # for element in selection:
+    for element_id in selection_ids:
+        element = doc.GetElement(element_id)
         point_element = get_location(element, ALIGN)
         if point_element:
             point_element.element = element
             point_collection.points.append(point_element)
 
     average_target = getattr(point_collection, Justification.method[ALIGN])
+    logger.debug('Location Target is: {}'.format(average_target))
 
     t = Transaction(doc, 'Smart Align')
     t.Start()
@@ -249,6 +315,6 @@ def main(ALIGN):
             else:
                 logger.debug('Moved: {}'.format(
                              str(type(point_element.element))))
-    logger.info('Done.')
 
+    logger.info('Done.')
     t.Commit()
