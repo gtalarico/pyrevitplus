@@ -6,8 +6,7 @@ is part of PyRevitPlus: Extensions for PyRevit
 github.com/gtalarico | gtalarico@gmail.com
 
 --------------------------------------------------------
-PyRevit Notice:
-Copyright (c) 2014-2016 Ehsan Iran-Nejad
+pyRevit Notice:
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
