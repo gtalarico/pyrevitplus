@@ -1,14 +1,13 @@
 """
+RemoveUnderlay
 Removes Underlay From Selected Views.
+TESTED REVIT API: 2015 | 2016
 
-Parts of this script were taken from:
-http://dp-stuff.org/revit-view-underlay-property-python-problem/
-
-Adapted for PyRevit and Revit 2016 By Gui Talarico
+Copyright (c) 2014-2016 Gui Talarico
 github.com/gtalarico | gtalarico@gmail.com
 
-Tested:
-2015, 2016
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | gtalarico@gmail.com
 
 --------------------------------------------------------
 PyRevit Notice:
@@ -16,9 +15,13 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+
+# Parts of this script were taken from:
+# http://dp-stuff.org/revit-view-underlay-property-python-problem/
+
 __doc__ = 'Removes Underlay parameter from selected views.'
 __author__ = 'gtalarico@gmail.com'
-__version__ = '0.0.2'
+__version__ = '0.2.0'
 
 import clr
 clr.AddReference('RevitAPI')

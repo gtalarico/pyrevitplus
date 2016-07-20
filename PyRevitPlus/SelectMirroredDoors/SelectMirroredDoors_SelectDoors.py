@@ -1,15 +1,13 @@
 """
-Select Mirrored Doors
+SelectMirroredDoors
+Selects All Door Instances that have been Mirrored.
+TESTED REVIT API: 2015 | 2016
 
 Copyright (c) 2014-2016 Gui Talarico
 github.com/gtalarico | gtalarico@gmail.com
 
-TESTED REVIT API:
-2015 | 2016
-
-This was written to be used with PyRevit, but can easilly be used as
-a standalone script using the IronPythonShell, or
-a Dynamo Python component.
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | gtalarico@gmail.com
 
 --------------------------------------------------------
 PyRevit Notice:
@@ -20,7 +18,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 __doc__ = "Selects All Door Instances that have been Mirrored."
 __author__ = 'gtalarico@gmail.com'
-__version__ = '0.0.3'
+__version__ = '0.3.0'
 
 import clr
 
