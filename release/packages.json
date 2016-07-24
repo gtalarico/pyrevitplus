@@ -1,0 +1,14 @@
+{"packages":
+  [
+    {"smartalign":{
+      "name":"Smart Align",
+      "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip"
+      }
+    },
+    {"roomplacer":{
+      "name":"Room Placer",
+      "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip"
+      }
+    }
+  ]
+}
