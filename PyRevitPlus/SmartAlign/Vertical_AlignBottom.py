@@ -11,19 +11,23 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
+__author__ = 'Gui Talarico | gtalarico@gmail.com'
+__version = '0.4.0'
+
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
-from SmartAlign import *
+from Align import main
+from core import Align, verbose
 
 if not verbose:
     __window__.Close()
 
-# ALIGN = Justification.HCENTER
-# ALIGN = Justification.HLEFT
-# ALIGN = Justification.HRIGHT
-# ALIGN = Justification.VCENTER
-# ALIGN = Justification.VTOP
-ALIGN = Justification.VBOTTOM
+# ALIGN = Align.HCENTER
+# ALIGN = Align.HLEFT
+# ALIGN = Align.HRIGHT
+# ALIGN = Align.VCENTER
+# ALIGN = Align.VTOP
+ALIGN = Align.VBOTTOM
 
 main(ALIGN)

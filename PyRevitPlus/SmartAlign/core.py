@@ -15,46 +15,33 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
-
-__author__ = 'gtalarico@gmail.com'
-__version = '0.2.0'
-
-# TO DO:
-# Arrange/Distribute Obects
-# 3D (z axis) capability
-# Add Compatibility for Window Family (x + y are reversed)
-
+import sys
 import logging
 
-LOG_LEVEL = logging.ERROR
-# LOG_LEVEL = logging.DEBUG
+__author__ = 'Gui Talarico | gtalarico@gmail.com'
+__version = '0.4.0'
 
+verbose = True  # True to Keep Window Open
+# verbose = False
+
+LOG_LEVEL = logging.ERROR
+LOG_LEVEL = logging.INFO
+if verbose:
+    LOG_LEVEL = logging.DEBUG
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger('SmarAlign')
 
-# True to Keep Window Open
-verbose = True
-verbose = False
-
-from Autodesk.Revit.DB import XYZ
-from Autodesk.Revit.DB import Transaction
-# from Autodesk.Revit.DB import ElementTransformUtils
-
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-
 TOLERANCE = 0.000001
 
-
-class Justification():
-    """ Justification Class.
+class Align(object):
+    """ Align Class.
     This class defines the name, location method, and axis for each
     alignment type
 
     TO DO:
     + Use class instanciation
     + Refactor Name Just > Alignment
-    alignment = Justification('HCENTER')
+    alignment = Align('HCENTER')
     alignment.axis    # returns x or y
     alignment.method  # returns min, max, average
     """
@@ -63,13 +50,18 @@ class Justification():
     VTOP = 'Vertical Top'
     VBOTTOM = 'Vertical Bottom'
     HCENTER = 'Horizontal Center'
-    HLEFT = 'Horiztontal Left'
+    HLEFT = 'Horizontal Left'
     HRIGHT = 'Horizontal Right'
+    VDIST = 'Vertical Distribution'
+    HDIST = 'Horizontal Distrution'
 
     method = {VCENTER: 'average', VTOP: 'max', VBOTTOM: 'min',
-              HCENTER: 'average', HLEFT: 'min', HRIGHT: 'max'}
+              HCENTER: 'average', HLEFT: 'min', HRIGHT: 'max',
+              VDIST: 'average', HDIST:'average'}
+
     axis = {VCENTER: 'Y', VTOP: 'Y', VBOTTOM: 'Y',
-            HCENTER: 'X', HLEFT: 'X', HRIGHT: 'X'}
+            HCENTER: 'X', HLEFT: 'X', HRIGHT: 'X',
+            VDIST: 'Y', HDIST:'X'}
 
 
 class PointCollection(object):
@@ -149,6 +141,21 @@ class PointCollection(object):
         z_min = min(z_values)
         return PointElement(x_min, y_min, z_min)
 
+    def sort_points(self, align_axis):
+        sorted_points = self.points
+        sorted_points.sort(key=lambda p: getattr(p, align_axis))
+        self.points = sorted_points
+
+    def __len__(self):
+        return len(self.points)
+
+    def __repr__(self):
+        return '<PC: {points} points | Max={max} Min={min} |Avg:{avg}>'.format(
+                                                              points=len(self),
+                                                              max=self.max,
+                                                              min=self.min,
+                                                              avg=self.average
+                                                              )
 
 class PointElement(object):
     """ Similar to Revit XYZ, but also stores associated element.
@@ -169,14 +176,14 @@ class PointElement(object):
 
     ignore_z: not implemented
     """
-    def __init__(self, X, Y, Z, element=None, ignore_z=False):
+    def __init__(self, X=0, Y=0, Z=0, element=None, ignore_z=False):
         self.X = X
         self.Y = Y
         self.Z = Z
         self.element = element
-        if ignore_z:
-            raise NotImplementedError
-            self.Z = 0
+        # if ignore_z:
+        #     raise NotImplementedError
+        #     self.Z = 0
 
     @property
     def as_tuple(self):
@@ -237,9 +244,8 @@ class BoundingBoxElement(object):
         return repr(self)
 
 
-def get_location(element, align):
-    ''' ADD DOC '''
-    align_method = Justification.method[align]
+def get_location(element, align_method):
+    """ Add Doc """
 
     try:  # Try .Location Method First - Needed for Rooms
         location_pt = element.Location.Point
@@ -259,20 +265,20 @@ def get_location(element, align):
         logger.debug('Got Location by Bounding Box: {}'.format(location_pt))
         return location_pt
 
+    try:  # Try Coord - For Text Elements
+        location_pt = element.Coord
+    except:
+        logger.debug('Could not get .Coord.')
+    else:
+        location_pt = PointElement(location_pt.X, location_pt.Y, location_pt.Z)
+        logger.debug('Got Location from .Location: {}'.format(location_pt))
+        return location_pt
+
     # If got to this point, it failed.
     logger.warning('Failed to get_location for: {}'.format(str(type(element))))
 
-
-def main(ALIGN):
-    """ Main Smart Align Funciton.
-    ALIGN argument define align method (min, max, average)
-    and axis (X, Y) based on Justification class
-    """
-    axis = Justification.axis[ALIGN]
-    logger.debug('ALIGN: {}'.format(ALIGN))
-    logger.debug('AXIS: {}'.format(axis))
-
-    point_collection = PointCollection()
+def get_selected_elements(uidoc, doc):
+    """ Add Doc """
     selection = uidoc.Selection
     selection_ids = selection.GetElementIds()
     selection_size = selection_ids.Count
@@ -280,45 +286,20 @@ def main(ALIGN):
     # selection = uidoc.Selection.Elements  # Revit 2015
     if not selection_ids:
         logger.error('No Elements Selected')
-        return
-    # for element in selection:
+        sys.exit(0)
+    elements = []
     for element_id in selection_ids:
-        element = doc.GetElement(element_id)
-        point_element = get_location(element, ALIGN)
-        if point_element:
-            point_element.element = element
-            point_collection.points.append(point_element)
+        elements.append(doc.GetElement(element_id))
+    return elements
 
-    average_target = getattr(point_collection, Justification.method[ALIGN])
-    logger.debug('Location Target is: {}'.format(average_target))
+def move_element(element, translation):
+    try:
+        element.Location.Move(translation)
+    except Exception as errmsg:
+        logger.error('Failed Moving Object: {}'.format(type(element)))
+        logger.error('Error: {}'.format(errmsg))
+    else:
+        logger.info('Moved: {}'.format(str(type(element))))
 
-    t = Transaction(doc, 'Smart Align')
-    t.Start()
-
-    for point_element in point_collection:
-
-        #  delta is the distance the object needs to travel on selected axis.
-        delta = getattr(average_target, axis) - getattr(point_element, axis)
-
-        logger.debug('Delta is: {}'.format(str(delta)))
-        if abs(delta) < TOLERANCE:
-            logger.info('Translation smaller than tolerance. Skipping...')
-
-        else:
-            delta_vector = PointElement(0, 0, 0)  # Blank Vector
-            setattr(delta_vector, axis, delta)    # Replace Axis with Delta
-            translation_vector = XYZ(*delta_vector.as_tuple)  # Revit PTvector
-            logger.debug('Translation: {}'.format(str(translation_vector)))
-            try:
-                point_element.element.Location.Move(translation_vector)
-                # ElementTransformUtils.MoveElement(
-                # doc, point_element.element.Id, translation_vector)
-            except:
-                logger.error('Failed Moving Object: {}'.format(
-                             type(point_element.element)))
-            else:
-                logger.debug('Moved: {}'.format(
-                             str(type(point_element.element))))
-
-    logger.info('Done.')
-    t.Commit()
+if __name__ == '__main__':
+    pass

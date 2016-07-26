@@ -17,17 +17,12 @@ __version = '0.4.0'
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
-from Align import main
+from Distribute import main
 from core import Align, verbose
 
 if not verbose:
     __window__.Close()
 
-# ALIGN = Align.HCENTER
-# ALIGN = Align.HLEFT
-# ALIGN = Align.HRIGHT
-# ALIGN = Align.VCENTER
-ALIGN = Align.VTOP
-# ALIGN = Align.VBOTTOM
-
+# ALIGN = Align.HDIST
+ALIGN = Align.VDIST
 main(ALIGN)

@@ -4,28 +4,24 @@
         {
           "name":"SelectMirroredDoors",
           "version":"0.2.0",
-          "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip",
           "files":["SelectMirroredDoors_SelectDoors.py", "0100_MiscTools_PushButton_SelectMirroredDoors.png"]
         },
     "removeunderlay":
         {
           "name":"RemoveUnderlay",
           "version":"0.2.0",
-          "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip",
           "files":["RemoveUnderlay_RemoveUnderlay.py", "0101_MiscTools_PushButton_RemoveUnderlay.png"]
         },
     "openinexcel":
         {
           "name":"OpenInExcel",
           "version":"0.1.0",
-          "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip",
           "files":["OpenInExcel_OpenInExcel.py", "0102_MiscTools_PushButton_OpenInExcel.png"]
         },
     "smartalign":
         {
           "name":"SmartAlign",
           "version":"0.3.0",
-          "url":"https://github.com/gtalarico/pyrevitplus/blob/master/release/pyrevitplus-0.1.0.zip",
           "files": ["SmartAlign.py",
                     "0001_SmartAlign_PulldownButton_Vertical.png",
                     "0002_SmartAlign_PulldownButton_Horizontal.png",
