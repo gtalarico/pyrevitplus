@@ -1,3 +1,24 @@
+"""
+Smart Align
+Provides Aligning functionality for various Revit Objects.
+TESTED REVIT API: 2015 | 2016
+
+Copyright (c) 2014-2016 Gui Talarico
+github.com/gtalarico | gtalarico@gmail.com
+
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | gtalarico@gmail.com
+
+--------------------------------------------------------
+PyRevit Notice:
+Copyright (c) 2014-2016 Ehsan Iran-Nejad
+pyRevit: repository at https://github.com/eirannejad/pyRevit
+
+"""
+
+__author__ = 'gtalarico@gmail.com'
+__version = '0.4.0'
+
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
@@ -33,7 +54,7 @@ def main(ALIGN):
     logger.debug('Align Axis: {}'.format(align_axis))
     logger.debug('Align Methid: {}'.format(align_method))
 
-    elements = get_selected_elements(uidoc, doc)
+    elements = get_selected_elements()
     point_collection = PointCollection()
 
     for element in elements:

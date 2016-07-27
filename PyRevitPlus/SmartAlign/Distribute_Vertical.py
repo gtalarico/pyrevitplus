@@ -12,15 +12,16 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __author__ = 'Gui Talarico | gtalarico@gmail.com'
-__version = '0.4.0'
+__version__ = '0.4.0'
+__doc__ = 'Distribute Elements Vertically'
 
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
-from Distribute import main
-from core import Align, verbose
+from smartalign.distribute import main
+from smartalign.core import Align, VERBOSE
 
-if not verbose:
+if not VERBOSE:
     __window__.Close()
 
 # ALIGN = Align.HDIST

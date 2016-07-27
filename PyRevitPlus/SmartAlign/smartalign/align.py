@@ -1,3 +1,24 @@
+"""
+Smart Align
+Provides Aligning functionality for various Revit Objects.
+TESTED REVIT API: 2015 | 2016
+
+Copyright (c) 2014-2016 Gui Talarico
+github.com/gtalarico | gtalarico@gmail.com
+
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | gtalarico@gmail.com
+
+--------------------------------------------------------
+PyRevit Notice:
+Copyright (c) 2014-2016 Ehsan Iran-Nejad
+pyRevit: repository at https://github.com/eirannejad/pyRevit
+
+"""
+
+__author__ = 'gtalarico@gmail.com'
+__version = '0.4.0'
+
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
@@ -25,7 +46,7 @@ def main(ALIGN):
     logger.debug('AXIS: {}'.format(align_axis))
 
     point_collection = PointCollection()
-    elements = get_selected_elements(uidoc, doc)
+    elements = get_selected_elements()
 
     for element in elements:
         point_element = get_location(element, align_method)
@@ -45,7 +66,7 @@ def main(ALIGN):
         logger.debug('Delta is: {}'.format(str(delta)))
         if abs(delta) < TOLERANCE:
             logger.info('Translation smaller than tolerance. Skipping...')
-
+            
         else:
             delta_vector = PointElement(0, 0, 0)  # Blank Vector
             setattr(delta_vector, align_axis, delta)    # Replace Axis with Delta

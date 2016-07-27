@@ -12,15 +12,16 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __author__ = 'Gui Talarico | gtalarico@gmail.com'
-__version = '0.4.0'
+__version__ = '0.4.0'
+__doc__ = 'Align Elements Horizontally: Center'
 
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
-from Align import main
-from core import Align, verbose
+from smartalign.align import main
+from smartalign.core import Align, VERBOSE
 
-if not verbose:
+if not VERBOSE:
     __window__.Close()
 
 ALIGN = Align.HCENTER

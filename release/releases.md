@@ -6,7 +6,7 @@
     = OpenInExcel:          -
     = SelectMirroredDoors   -
     = RemoveUnderlay        -
-    ! SmartAlign:           0.3.0
+    ! SmartAlign:           0.4.0
 
 -------------------------------------------------------------
 
@@ -14,7 +14,8 @@
     + OpenInExcel:          0.1.0
     = SelectMirroredDoors   -
     = RemoveUnderlay        -
-    = SmartAlign:           -
+    ! SmartAlign:           0.3.0
+
 
 -------------------------------------------------------------
 

@@ -15,18 +15,25 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+
+__author__ = 'gtalarico@gmail.com'
+__version = '0.4.0'
+
 import sys
 import logging
 
-__author__ = 'Gui Talarico | gtalarico@gmail.com'
-__version = '0.4.0'
+from Autodesk.Revit.DB import XYZ
+from Autodesk.Revit.DB import Transaction
 
-verbose = True  # True to Keep Window Open
-# verbose = False
+doc = __revit__.ActiveUIDocument.Document
+uidoc = __revit__.ActiveUIDocument
+
+VERBOSE = True  # True to Keep Window Open
+VERBOSE = False
 
 LOG_LEVEL = logging.ERROR
 LOG_LEVEL = logging.INFO
-if verbose:
+if VERBOSE:
     LOG_LEVEL = logging.DEBUG
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger('SmarAlign')
@@ -197,6 +204,12 @@ class PointElement(object):
         return PointElement(self.X + other.X, self.Y + other.Y,
                             self.Z + other.Z)
 
+    def __eq__(self, other):
+        results = [self.X == other.X,
+                   self.Y == other.Y,
+                   self.Z == other.Z]
+        return all(results)
+
     def __repr__(self):
         return '<P:X={x} Y={y} Z={z} |E:{el}>'.format(x=self.X, y=self.Y,
                                                       z=self.Z,
@@ -243,14 +256,14 @@ class BoundingBoxElement(object):
     def __str__(self):
         return repr(self)
 
-
 def get_location(element, align_method):
     """ Add Doc """
 
     try:  # Try .Location Method First - Needed for Rooms
         location_pt = element.Location.Point
-    except:
+    except Exception as errmsg:
         logger.debug('Could not get .Location. Trying bbox...')
+        logger.debug('Error: {}'.format(errmsg))
     else:
         location_pt = PointElement(location_pt.X, location_pt.Y, location_pt.Z)
         logger.debug('Got Location from .Location: {}'.format(location_pt))
@@ -258,8 +271,9 @@ def get_location(element, align_method):
 
     try:  # Not Room: Try Bounding Box Method
         bbox = BoundingBoxElement(element)
-    except:
+    except Exception as errmsg:
         logger.debug('Could not get BBox for:{}'.format(type(element)))
+        logger.debug('Error: {}'.format(errmsg))
     else:
         location_pt = getattr(bbox, align_method)  # min, max, or average
         logger.debug('Got Location by Bounding Box: {}'.format(location_pt))
@@ -267,8 +281,9 @@ def get_location(element, align_method):
 
     try:  # Try Coord - For Text Elements
         location_pt = element.Coord
-    except:
+    except Exception as errmsg:
         logger.debug('Could not get .Coord.')
+        logger.debug('Error: {}'.format(errmsg))
     else:
         location_pt = PointElement(location_pt.X, location_pt.Y, location_pt.Z)
         logger.debug('Got Location from .Location: {}'.format(location_pt))
@@ -277,7 +292,7 @@ def get_location(element, align_method):
     # If got to this point, it failed.
     logger.warning('Failed to get_location for: {}'.format(str(type(element))))
 
-def get_selected_elements(uidoc, doc):
+def get_selected_elements():
     """ Add Doc """
     selection = uidoc.Selection
     selection_ids = selection.GetElementIds()
