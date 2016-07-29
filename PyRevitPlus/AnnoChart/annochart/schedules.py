@@ -3,31 +3,45 @@ from Autodesk.Revit.DB import SectionType
 
 from annochart.revit import doc, uidoc
 
-def get_schedule_values():
+
+def get_schedule_values(schedule=None):
+    def coerce_value(value):
+        try:
+            value = float(value)
+        except Exception as errmsg:
+            pass
+        else:
+            # if value.is_integer():
+                # return int(value)
+            return value
+
     """Gets list of values from first column.
-    Needs Improvement to eliminate Header, Pick Column, Etc
+    Move Data parsing here
     """
-    schedule = doc.GetElement(doc.ActiveView.Id)
-    print(schedule)
+    if schedule is None:
+        schedule = doc.GetElement(doc.ActiveView.Id)
+
     if not isinstance(schedule, ViewSchedule):
         print('Active View must be a schedule.')
+        return 'Not a Schedule'
     else:
-        bodySection = schedule.GetTableData().GetSectionData(SectionType.Body)
-        headerSection = schedule.GetTableData().GetSectionData(SectionType.Body)
-        first_row = bodySection.FirstRowNumber
+        body = schedule.GetTableData().GetSectionData(SectionType.Body)
+        header = schedule.GetTableData().GetSectionData(SectionType.Body)
+        first_row = body.FirstRowNumber
         schedule_name = schedule.Title
 
-        # print('Exporting Schedule: {}'.format(schedule_name))
-        # print('Header:', headerSection)
-        # print('Body:', bodySection)
-        # print('FirstRow:', first_row)
-
-        qty_rows = bodySection.NumberOfRows
-        qty_cols = bodySection.NumberOfColumns
-        values = []
-        for row in range(0, qty_rows):
-            for col in range(0, 1):
+        qty_rows = body.NumberOfRows
+        qty_cols = body.NumberOfColumns
+        schedule_dict = {}
+        for col in range(0, qty_cols):
+            col_header = schedule.GetCellText(SectionType.Body, 0, col)
+            schedule_dict[col_header] = []
+            for row in range(1, qty_rows):
+                cells = []
                 cell = schedule.GetCellText(SectionType.Body, row, col)
-                values.append(cell)
+                if cell:
+                    if col_header == 'values':
+                        cell = coerce_value(cell)
+                    schedule_dict[col_header].append(cell)
 
-        return values
+        return schedule_dict

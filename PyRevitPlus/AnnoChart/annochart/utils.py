@@ -1,22 +1,28 @@
-from functools import wraps
+# from functools import wraps
+
+# Revit Globals
+from annochart.revit import doc, uidoc, Autodesk
 
 from Autodesk.Revit.DB import Transaction, Element
-
 from Autodesk.Revit.DB import FilteredElementCollector
+from Autodesk.Revit.Exceptions import InvalidOperationException
+from Autodesk.Revit.DB import XYZ
+from Autodesk.Revit.UI import TaskDialog
+
+#  Filled Regions
 from Autodesk.Revit.DB import FilledRegionType, FilledRegion
 
+#  Drafting Views
 from Autodesk.Revit.DB import ViewFamilyType, ViewDrafting, Element
 from Autodesk.Revit.DB import ViewFamily
 
-# UNUSED
-from Autodesk.Revit.Exceptions import InvalidOperationException
-from Autodesk.Revit.UI import TaskDialog
+# Text
+from Autodesk.Revit.DB import TextAlignFlags
 
-from annochart.revit import doc, uidoc
 
 def revit_transaction(transaction_name):
     def wrap(f):
-        @wraps(f)
+        # @wraps(f)
         def wrapped_f(*args):
             try:
                 t = Transaction(doc, transaction_name)
@@ -30,6 +36,7 @@ def revit_transaction(transaction_name):
             return return_value
         return wrapped_f
     return wrap
+
 
 def fregion_id_by_name(name=None):
     """Get Id of Filled Region Type by Name.
@@ -46,20 +53,29 @@ def fregion_id_by_name(name=None):
     else:
         return fregion_type.Id
 
-from Autodesk.Revit.DB import TextAlignFlags
-from Autodesk.Revit.DB import XYZ
 
-
-# @revit_transaction('Create Text')
-def create_text(view, text, point):
+# @revit_transaction('Create Text') - Transaction Already Started on Chart
+def create_text(view, text, point, align):
+    """Creates a Revit Text.
+    create_test(view, text_string, point)
+    TODO: Add Justification as option
+    """
     baseVec = XYZ.BasisX
     upVec = XYZ.BasisZ
     text_size = 10
     text_length = 0.1
+    text = str(text)
 
-    text_element = doc.Create.NewTextNote(view, point,
-        baseVec, upVec, text_length, TextAlignFlags.TEF_ALIGN_RIGHT |
-        TextAlignFlags.TEF_ALIGN_MIDDLE, text)
+    align_options = {'left': TextAlignFlags.TEF_ALIGN_LEFT |
+                             TextAlignFlags.TEF_ALIGN_MIDDLE,
+                     'right': TextAlignFlags.TEF_ALIGN_RIGHT |
+                             TextAlignFlags.TEF_ALIGN_MIDDLE
+                     }
+
+    text_element = doc.Create.NewTextNote(view, point, baseVec, upVec,
+                                          text_length,
+                                          align_options[align],
+                                          text)
     # text_element.TextNoteType = Bold
 
 
@@ -68,8 +84,8 @@ def create_drafting_view(name=None):
     """Create a Drafting View"""
     def get_drafting_type_id():
         """Selects First available ViewType that Matches Drafting Type."""
-        view_family_types = FilteredElementCollector(doc).OfClass(ViewFamilyType)
-        for i in view_family_types:
+        viewfamily_types = FilteredElementCollector(doc).OfClass(ViewFamilyType)
+        for i in viewfamily_types:
             if i.ViewFamily == ViewFamily.Drafting:
                 return i.Id
 
