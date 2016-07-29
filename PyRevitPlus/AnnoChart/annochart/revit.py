@@ -3,7 +3,6 @@ try:
     uidoc = __revit__.ActiveUIDocument
     doc = __revit__.ActiveUIDocument.Document
     ActiveView = uidoc.ActiveView
-    Autodesk = Autodesk
 except NameError:
     # Running Inside Dynamo
     import clr

@@ -1,7 +1,8 @@
-# from functools import wraps
+from functools import wraps
+import logging
 
 # Revit Globals
-from annochart.revit import doc, uidoc, Autodesk
+from annochart.revit import doc, uidoc
 
 from Autodesk.Revit.DB import Transaction, Element
 from Autodesk.Revit.DB import FilteredElementCollector
@@ -19,10 +20,21 @@ from Autodesk.Revit.DB import ViewFamily
 # Text
 from Autodesk.Revit.DB import TextAlignFlags
 
+VERBOSE = True
+LOG_LEVEL = logging.INFO
+if VERBOSE:
+    LOG_LEVEL = logging.DEBUG
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger('AnnoChart')
+
+
+def dialog(msg, title='AnnoChart'):
+    TaskDialog.Show(title, msg)
+
 
 def revit_transaction(transaction_name):
     def wrap(f):
-        # @wraps(f)
+        @wraps(f)
         def wrapped_f(*args):
             try:
                 t = Transaction(doc, transaction_name)
@@ -51,6 +63,7 @@ def fregion_id_by_name(name=None):
             return fregion_type.Id
     # Loops through all, not found: use last
     else:
+        logger.debug('Color not specified or not found.')
         return fregion_type.Id
 
 
@@ -63,7 +76,7 @@ def create_text(view, text, point, align):
     baseVec = XYZ.BasisX
     upVec = XYZ.BasisZ
     text_size = 10
-    text_length = 0.1
+    text_length = 0.2
     text = str(text)
 
     align_options = {'left': TextAlignFlags.TEF_ALIGN_LEFT |

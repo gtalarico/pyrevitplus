@@ -2,29 +2,35 @@ from Autodesk.Revit.DB import ViewSchedule
 from Autodesk.Revit.DB import SectionType
 
 from annochart.revit import doc, uidoc
+from annochart.utils import dialog
 
 
-def get_schedule_values(schedule=None):
+def get_schedule_values(view, round_decimals=2):
+    """Gets list of values from first column.
+    Move Data parsing here
+    """
+    HEADER_VALUES = 'values'
+
     def coerce_value(value):
         try:
             value = float(value)
         except Exception as errmsg:
-            pass
+            dialog('Found non-number in values column: {}'.format(value))
+            raise ValueError('All cells in teh values column must be numbers')
         else:
-            # if value.is_integer():
-                # return int(value)
-            return value
+            return round(value, round_decimals)
 
-    """Gets list of values from first column.
-    Move Data parsing here
-    """
-    if schedule is None:
-        schedule = doc.GetElement(doc.ActiveView.Id)
+    def validate_schedule(schedule_dict):
+        if HEADER_VALUES in schedule_dict.keys():
+            return schedule_dict
+        else:
+            dialog('You must have a numeric column labeled: values')
 
-    if not isinstance(schedule, ViewSchedule):
-        print('Active View must be a schedule.')
-        return 'Not a Schedule'
+
+    if not isinstance(view, ViewSchedule):
+        dialog('View must be a schedule')
     else:
+        schedule = view
         body = schedule.GetTableData().GetSectionData(SectionType.Body)
         header = schedule.GetTableData().GetSectionData(SectionType.Body)
         first_row = body.FirstRowNumber
@@ -44,4 +50,4 @@ def get_schedule_values(schedule=None):
                         cell = coerce_value(cell)
                     schedule_dict[col_header].append(cell)
 
-        return schedule_dict
+        return validate_schedule(schedule_dict)

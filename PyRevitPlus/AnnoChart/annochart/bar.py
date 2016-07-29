@@ -1,8 +1,8 @@
 import itertools
 import sys
 
-from annochart.utils import revit_transaction, create_text
-from annochart.revit import doc, uidoc, Autodesk
+from annochart.utils import revit_transaction, create_text, dialog
+from annochart.revit import doc, uidoc
 
 # from annochart.revit import Autodesk
 from Autodesk.Revit.DB import Transaction
@@ -18,6 +18,7 @@ class BarChart(object):
                              bar_height=1,spacing=0.25,)
         bar_chart.draw(view_id)
 
+        fregion_ids = [list of field_region_type ids]
         OPTIONS: [DEFAULT]
         bar_height: 1
         spacing: 0.25
@@ -31,17 +32,29 @@ class BarChart(object):
         self.start_y = 0
 
         # Required Arguments
+        if not values:
+            dialog('Invalid Values: [{}]'.format(values))
+            raise ValueError('values column is a valid sequence')
         self.values = values
-        self.fregion_ids = itertools.cycle(fregion_ids)
+        self.fregion_ids = fregion_ids
 
         # Optional Configutarions
+        self.title = options.get('title')
         self.bar_height = options.get('bar_height', 1)
         self.spacing = options.get('spacing', 0.25)
+        self.max_width = options.get('max_width', 1)
 
-        self.value_labels = options.get('value_labels',
-                                        [str(v) for v in values])
-        self.labels = options.get('labels', ['' for v in values])
+        self.value_labels = options.get('value_labels') or [str(v) for
+                                                            v in values]
+        self.labels = options.get('labels') or ['' for v in values]
+
         self.label_padding = options.get('label_padding', self.spacing / 2)
+
+        scale_factor = self.max_width / max(self.values)
+        if self.max_width is None:
+            self.scaled_values = values
+        else:
+            self.scaled_values = [value * scale_factor for value in values]
 
         self.make_bars()
 
@@ -49,22 +62,26 @@ class BarChart(object):
         self.bars = []
         y = self.start_y
 
-        for n, value in enumerate(self.values):
+        for n, value in enumerate(self.scaled_values):
             y += self.bar_height + self.spacing
             bar = Bar(self.start_x, y, value, self.bar_height,
-                      value_label=self.value_labels[n], label=self.labels[n],
+                      self.fregion_ids[n],
+                      self.value_labels[n], label=self.labels[n],
                       label_padding=self.label_padding)
 
             self.bars.append(bar)
 
     @revit_transaction("Draw Bar Chart")
     def draw(self, view):
+        for bar in self.bars:
 
-        for bar, fregion_id in zip(self.bars, self.fregion_ids):
-
-            bar.draw(view, fregion_id)
+            bar.draw(view)
             create_text(view, bar.value_label, bar.value_label_pt, 'left')
             create_text(view, bar.label, bar.label_pt, 'right')
+        if self.title:
+            title_y = self.start_y
+            title_pt = XYZ(self.start_x, title_y, 0)
+            create_text(view, self.title, title_pt, 'left')
 
 
 class Bar(object):
@@ -73,15 +90,19 @@ class Bar(object):
               label_padding=None)
     """
     def __init__(self, start_x, start_y, width, height,
-                 value_label=None, label=None, label_padding=None):
+                 fregion_id, value_label,
+                 label=None, label_padding=None):
+        DEFAULT_MIN = 0.01
         self.start_x = start_x
         self.start_y = start_y
-        self.width = width
+        self.width = width or DEFAULT_MIN  # Zero Widht cannot be drawn
         self.height = height
+        self.value_label = value_label
+        self.fregion_id = fregion_id
+
 
         self.label_padding = label_padding or 0
         self.label = label
-        self.value_label = value_label or str(width)
 
         self.profile_loops = self.make_loops()
 
@@ -96,13 +117,6 @@ class Bar(object):
         p4 = XYZ(start_x, end_y, 0.0)
         p5 = XYZ(start_x, start_y, 0.0)
         points = [p1, p2, p3, p4, p5]
-        print('=')
-        print('width:', self.width)
-        print('height:', self.height)
-        print('start_x', start_x)
-        print('start_y', start_y)
-        for p in points:
-            print('point:', p)
 
         profileloop = CurveLoop()
         profileloops = List[CurveLoop]()
@@ -114,8 +128,17 @@ class Bar(object):
                 continue
             else:
                 profileloop.Append(line)
-
-        profileloops.Add(profileloop)
+        try:
+            profileloops.Add(profileloop)
+        except Exception as errmsg:
+            dialog('Something wrong processing points: {}'.format(self.points))
+            # ADD LOGGER
+            logger.error('width: {}'.format(self.width))
+            logger.error('height: {}'.format(self.height))
+            logger.error('start_x: {}'.format(start_x))
+            logger.error('start_y: {}'.format(start_y))
+            for n, point in enumerate(points):
+                logger.error('Point {}:{}'.format(n, point))
 
         # Defines Location for Label and Value Label
         label_x = start_x - self.label_padding
@@ -127,6 +150,6 @@ class Bar(object):
 
         return profileloops
 
-    def draw(self, view, filled_region_type_id):
-        FilledRegion.Create(doc, filled_region_type_id,
+    def draw(self, view):
+        FilledRegion.Create(doc, self.fregion_id,
                             view.Id, self.profile_loops)

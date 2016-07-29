@@ -2,51 +2,45 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 
-from annochart.revit import doc, uidoc
+from annochart.revit import doc, uidoc, ActiveView
 from annochart.bar import BarChart
 from annochart.schedules import get_schedule_values
 from annochart.utils import (fregion_id_by_name, create_drafting_view,
-                             create_text)
+                             create_text, logger)
 
-__doc__ = "Creates Bar Chart from active Schedule"
+__doc__ = """Creates Bar Chart from active Schedule.
+             Schedule must have a numeric column labeled 'values'.
+             Optional columns:
+             colors: name of filled region to be used.
+             labels: label to the left of bar.
+             value_labels: label to the right of bar.
+             """
 
+schedule_dict = get_schedule_values(ActiveView, round_decimals=2)
 
-def make_chart(values, labels, colors, **options):
-    view = create_drafting_view()  # or doc.ActiveView.Id
+if schedule_dict:
+
+    values = schedule_dict['values']
+    value_labels = schedule_dict.get('value_labels', values)
+    colors = schedule_dict.get('colors', ['' for value in values])
+    labels = schedule_dict.get('labels', None)
 
     fregion_ids = [fregion_id_by_name(color) for color in colors]
-    max_width = options.get('max_width', 5.0)
-    label_values = values
 
-    scale_factor = max_width / max(values)
-    scaled_values = [value * scale_factor for value in values]
+    view = create_drafting_view()
 
-    print('Values: ', values)
-    print('Scale factor: ', scaled_values)
-    print('Scaled values: ', scaled_values)
+    logger.debug('Values: {}'.format(values))
+    logger.debug('value_labels: {}'.format(value_labels))
+    logger.debug('labels: {}'.format(labels))
+    logger.debug('colors: {}'.format(colors))
 
-    bar_chart = BarChart(scaled_values, fregion_ids,
-                         bar_height=0.10, spacing=0.075,
-                         labels=labels, value_labels=values)
+    bar_chart = BarChart(values, fregion_ids,
+                         bar_height=0.20, spacing=0.15, max_width=2,
+                         labels=labels, value_labels=value_labels,
+                         title='Desks Vs Area')
 
     bar_chart.draw(view)
     uidoc.ActiveView = view
     print('Done')
-    # __window__.Close()
 
-schedule_dict = get_schedule_values()
-values = schedule_dict['values']
-labels = schedule_dict['labels']
-colors = schedule_dict['colors']
-
-# if not all([values, colors, labels]):
-    # print('Schedule not set correctly.')
-# else:
-make_chart(values, labels, colors, max_width=5)
-    # try:
-    #     values = [float(value) for value in string_values[2:]]
-    # except ValueError as errmsg:
-    #     print('I cannot understand this table.')
-    #     print('Error:', errmsg)
-    # else:
-    #     # main(values)
+    __window__.Close()
