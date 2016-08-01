@@ -24,6 +24,7 @@ if schedule_dict:
     value_labels = schedule_dict.get('value_labels', values)
     colors = schedule_dict.get('colors', ['' for value in values])
     labels = schedule_dict.get('labels', None)
+    title = schedule_dict.get('title','')
 
     fregion_ids = [fregion_id_by_name(color) for color in colors]
 
@@ -37,7 +38,7 @@ if schedule_dict:
     bar_chart = BarChart(values, fregion_ids,
                          bar_height=0.20, spacing=0.15, max_width=2,
                          labels=labels, value_labels=value_labels,
-                         title='Desks Vs Area')
+                         title=title)
 
     bar_chart.draw(view)
     uidoc.ActiveView = view

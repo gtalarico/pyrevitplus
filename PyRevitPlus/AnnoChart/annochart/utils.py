@@ -76,7 +76,7 @@ def create_text(view, text, point, align):
     baseVec = XYZ.BasisX
     upVec = XYZ.BasisZ
     text_size = 10
-    text_length = 0.2
+    text_length = 0.5
     text = str(text)
 
     align_options = {'left': TextAlignFlags.TEF_ALIGN_LEFT |

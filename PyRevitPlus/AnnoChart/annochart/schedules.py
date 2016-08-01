@@ -39,15 +39,17 @@ def get_schedule_values(view, round_decimals=2):
         qty_rows = body.NumberOfRows
         qty_cols = body.NumberOfColumns
         schedule_dict = {}
+        schedule_dict['title'] = schedule_name
         for col in range(0, qty_cols):
             col_header = schedule.GetCellText(SectionType.Body, 0, col)
             schedule_dict[col_header] = []
-            for row in range(1, qty_rows):
+            for row in range(2, qty_rows):
                 cells = []
                 cell = schedule.GetCellText(SectionType.Body, row, col)
-                if cell:
-                    if col_header == 'values':
-                        cell = coerce_value(cell)
-                    schedule_dict[col_header].append(cell)
+                print('Cell:', cell)
+
+                if col_header == 'values':
+                    cell = coerce_value(cell)
+                schedule_dict[col_header].append(cell)
 
         return validate_schedule(schedule_dict)
