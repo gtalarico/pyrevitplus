@@ -27,14 +27,17 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 #### Open In Excel
 * [Opens all selected Schedules in Excel](https://vimeo.com/175722720)
 
-## Tools in Progress (don't recommend downloading/installing these!):
+## Tools in Development
+> [I Don't recommend downloading/installing these!]
 
-## PackageManager: TESTING
+#### PackageManager: TESTING
 * Prototype of a UI interface to manage pacakges from this repo
 
-## AnnoChart: ALPHA
+#### AnnoChart: ALPHA
 * Make bar charts from schedules. Needs documentation and more tests.
 * See demo [here](https://vimeo.com/177012499)
+
+---
 
 ## Credits
 * [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
