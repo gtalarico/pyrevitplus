@@ -28,7 +28,6 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * [Opens all selected Schedules in Excel](https://vimeo.com/175722720)
 
 ## Tools in Development
-> [I Don't recommend downloading/installing these!]
 
 #### PackageManager: TESTING
 * Prototype of a UI interface to manage pacakges from this repo
@@ -45,5 +44,5 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
-* Improve Install instructions and experience
+* Improve Install instructions and process
 * Check 2016 + 2017 Compatibility
