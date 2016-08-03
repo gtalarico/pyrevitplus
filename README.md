@@ -18,13 +18,13 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * [Distribute Horizontal](https://vimeo.com/176463031)
 * [Distribute Vertical](https://vimeo.com/176463029)
 
-#### Select Mirrored Doors
+#### Select Mirrored Doors [Included in default PyRevit lib]
 * Selects all door instances that have been mirrored
 
-#### Remove Underlay
+#### Remove Underlay [Included in default PyRevit lib]
 * Removes Underlay from all selected Views
 
-#### Open In Excel
+#### Open In Excel [Based on PyRevit Schedule Export Script]
 * [Opens all selected Schedules in Excel](https://vimeo.com/175722720)
 
 ## Tools in Development
