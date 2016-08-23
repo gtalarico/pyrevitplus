@@ -4,27 +4,39 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 
 ## Installation
 * [Install PyRevit](https://github.com/eirannejad/pyRevit/)
-* Copy files into a subfolder in the main PyRevit Folder (same folder where __init__.py and LICENSE are)
+* Download the latest .zip from the RELEASES tab and drop the contents in the main PyRevit Folder (same folder where __init__.py and LICENSE are) - [Releases](https://github.com/gtalarico/pyrevitplus/tree/master/release)
 
 ## Tools
 
 #### Smart Align
 * Alignment tools for Revit.Handles a variety of objects, including annotations, rooms, and several types of family instances. Demo videos:
-* [Text](https://www.dropbox.com/sh/9hmujxj7gjog1m4/AABZw4NkMzk5vul7J2-VHF0Ea?dl=0&preview=Distribute-Vertical.flv)
-* [Doors](https://www.dropbox.com/s/wgczdhv7esplywv/Doors.flv?dl=0)
-* [Filled Regions](https://www.dropbox.com/s/0fpxxx7twrp51mo/Filed%20Regions.flv?dl=0)
-* [Rooms](https://www.dropbox.com/s/626mje9hwoxzzea/Rooms.flv?dl=0)
-* [Text](https://www.dropbox.com/s/70i8txw56iz4ujd/Text.flv?dl=0)
-* [Walls](https://www.dropbox.com/s/qj6o3bv6x9q0ezn/Walls.flv?dl=0)
+* [Text](https://vimeo.com/174676628)
+* [Doors](https://vimeo.com/174676630)
+* [Filled Regions](https://vimeo.com/174676631)
+* [Rooms](https://vimeo.com/174676632)
+* [Walls](https://vimeo.com/174676629)
+* [Distribute Horizontal](https://vimeo.com/176463031)
+* [Distribute Vertical](https://vimeo.com/176463029)
 
-#### Select Mirrored Doors
+#### Select Mirrored Doors [Included in default PyRevit lib]
 * Selects all door instances that have been mirrored
 
-#### Remove Underlay
+#### Remove Underlay [Included in default PyRevit lib]
 * Removes Underlay from all selected Views
 
-#### Open In Excel
-* Opens all selected Schedules in Excel
+#### Open In Excel [Based on PyRevit Schedule Export Script]
+* [Opens all selected Schedules in Excel](https://vimeo.com/175722720)
+
+## Tools in Development
+
+#### PackageManager: TESTING
+* Prototype of a UI interface to manage pacakges from this repo
+
+#### AnnoChart: ALPHA
+* Make bar charts from schedules. Needs documentation and more tests.
+* See demo [here](https://vimeo.com/177012499)
+
+---
 
 ## Credits
 * [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
@@ -32,5 +44,5 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
-* Improve Install instructions and experience
+* Improve Install instructions and process
 * Check 2016 + 2017 Compatibility
