@@ -1,0 +1,43 @@
+{"packages":
+    {
+    "selectmirroreddoors":
+        {
+          "name":"SelectMirroredDoors",
+          "version":"0.2.0",
+          "files":["SelectMirroredDoors_SelectDoors.py", "0100_MiscTools_PushButton_SelectMirroredDoors.png"]
+        },
+    "removeunderlay":
+        {
+          "name":"RemoveUnderlay",
+          "version":"0.2.0",
+          "files":["RemoveUnderlay_RemoveUnderlay.py", "0101_MiscTools_PushButton_RemoveUnderlay.png"]
+        },
+    "openinexcel":
+        {
+          "name":"OpenInExcel",
+          "version":"0.1.0",
+          "files":["OpenInExcel_OpenInExcel.py", "0102_MiscTools_PushButton_OpenInExcel.png"]
+        },
+    "smartalign":
+        {
+          "name":"SmartAlign",
+          "version":"0.3.0",
+          "files": ["SmartAlign.py",
+                    "0001_SmartAlign_PulldownButton_Vertical.png",
+                    "0002_SmartAlign_PulldownButton_Horizontal.png",
+                    "Horizontal_AlignCenter.png",
+                    "Horizontal_AlignCenter.py",
+                    "Horizontal_AlignLeft.png",
+                    "Horizontal_AlignLeft.py",
+                    "Horizontal_AlignRight.png",
+                    "Horizontal_AlignRight.py",
+                    "Vertical_AlignBottom.png",
+                    "Vertical_AlignBottom.py",
+                    "Vertical_AlignCenter.png",
+                    "Vertical_AlignCenter.py",
+                    "Vertical_AlignTop.png",
+                    "Vertical_AlignTop.py"
+                    ]
+        }
+    }
+}
