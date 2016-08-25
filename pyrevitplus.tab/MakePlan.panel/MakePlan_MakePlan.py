@@ -1,7 +1,7 @@
 """
-Smart Align
-Provides Aligning functionality for various Revit Objects.
-TESTED REVIT API: 2015 | 2016
+Make Plans
+Create Plans from Selected Rooms
+TESTED REVIT API: 2015
 
 Copyright (c) 2014-2016 Gui Talarico
 github.com/gtalarico | gtalarico@gmail.com
@@ -17,19 +17,24 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __author__ = 'gtalarico@gmail.com'
-__version = '0.4.0'
 
 import sys
+import os
 import logging
 from functools import wraps
 from collections import namedtuple
 
+from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.DB import XYZ, BoundingBoxXYZ
 from Autodesk.Revit.DB import Element, ElementId, BuiltInParameter
 from Autodesk.Revit.DB import Transaction, FilteredElementCollector
 from Autodesk.Revit.DB import ViewPlanType, ViewFamilyType
 from Autodesk.Revit.DB import ViewFamily, ViewPlan
 from Autodesk.Revit.DB.Architecture import Room
+
+sys.path.append(os.path.dirname(__file__))
+from winforms import SelectViewTypeForm, DialogResult
+# from .winforms import SelectViewTypeForm
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
@@ -45,28 +50,6 @@ logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger('MakePlan')
 
 
-class BoundingBoxElement(object):
-    """ BoundingBoxElement receives a Revit Object for access to properties.
-    Usage:
-    bbox = BoundingBoxElement(element)
-    bbox.element: element
-    Properties:
-    bbox.min: min coordinate of bounding box
-    bbox.max: min coordinate of bounding box
-    bbox.average: min coordinate of bounding box
-
-    """
-
-    def __init__(self, element):
-        self.element = element
-        # self.bbox = element.get_BoundingBox(doc.ActiveView)
-        # self.bbox = element.get_BoundingBox(doc.ActiveView)
-        self.bbox = element.BoundingBox(doc.ActiveView)
-
-    def __str__(self):
-        return repr(self)
-
-
 def get_selected_elements():
     """ Add Doc """
     selection = uidoc.Selection
@@ -75,7 +58,9 @@ def get_selected_elements():
     logger.debug('selection_size: {}'.format(selection_size))
     # selection = uidoc.Selection.Elements  # Revit 2015
     if not selection_ids:
-        logger.error('No Elements Selected')
+        TaskDialog.Show('MakePlans', 'No Elements Selected.')
+        # logger.error('No Elements Selected')
+        __window__.Close()
         sys.exit(0)
     elements = []
     for element_id in selection_ids:
@@ -119,18 +104,6 @@ def offset_bbox(bbox, offset):
 @revit_transaction('Create View')
 def create_plan(name, chosen_view_type_name, level_id, bbox=None):
     """Create a Drafting View"""
-    def get_plan_type_id():
-        """Selects First available ViewType that Matches Drafting Type."""
-        viewfamily_types = FilteredElementCollector(doc).OfClass(
-                                    ViewFamilyType).WhereElementIsElementType()
-        for view_type in viewfamily_types:
-            if view_type.ViewFamily == ViewFamily.FloorPlan:
-                # Name of Floor Plan Types
-                view_type_name = Element.Name.GetValue(view_type)
-                if view_type_name == chosen_view_type_name:
-                    return view_type.Id
-        else:
-            logger.info('Did not Match any types')
 
     def update_view_crop(view, bbox):
         view.CropBoxActive = True
@@ -139,7 +112,7 @@ def create_plan(name, chosen_view_type_name, level_id, bbox=None):
         underlay.Set(ElementId.InvalidElementId)
         view.CropBox = bbox
 
-    floorplan_type_id = get_plan_type_id()
+    floorplan_type_id = get_plan_type_id(chosen_view_type_name)
     floorplan_view = ViewPlan.Create(doc, floorplan_type_id, level_id)
     if bbox:
         update_view_crop(floorplan_view, bbox)
@@ -151,15 +124,46 @@ def create_plan(name, chosen_view_type_name, level_id, bbox=None):
     return floorplan_view
 
 
+def get_plan_types_names():
+    type_names = []
+    viewfamily_types = FilteredElementCollector(doc).OfClass(
+                            ViewFamilyType).WhereElementIsElementType()
+    for view_type in viewfamily_types:
+        if view_type.ViewFamily == ViewFamily.FloorPlan or view_type.ViewFamily == ViewFamily.CeilingPlan:
+            view_type_name = Element.Name.GetValue(view_type)
+            type_names.append(view_type_name)
+    return type_names
 
 
+def get_plan_type_id(chosen_view_type_name):
+    """Selects First available ViewType that Matches Drafting Type."""
+    viewfamily_types = FilteredElementCollector(doc).OfClass(
+                            ViewFamilyType).WhereElementIsElementType()
+    for view_type in viewfamily_types:
+        view_type_name = Element.Name.GetValue(view_type)
+        if view_type.ViewFamily == ViewFamily.FloorPlan or view_type.ViewFamily == ViewFamily.CeilingPlan:
+            if view_type_name == chosen_view_type_name:
+                return view_type.Id
+    else:
+        logger.info('Did not Match any types')
+
+
+__window__.Close()
 
 elements = get_selected_elements()
 
-chosen_view_type_name = 'LFP - KeyPlan - Enlarged'
+
+# chosen_view_type_name = 'LFP - KeyPlan - Enlarged'
+options = get_plan_types_names()
+
+form = SelectViewTypeForm(options)
+form.ShowDialog()
+if form.DialogResult == DialogResult.OK:
+    chosen_view_type_name = form.selected
 
 NewView = namedtuple('NewView', ['name', 'bbox', 'level_id'])
 new_views = []
+
 
 for element in elements:
     if isinstance(element, Room):
@@ -179,9 +183,10 @@ for element in elements:
         new_views.append(new_view)
         logger.info('New View: ' + new_room_name)
 
+
+if not new_views:
+    TaskDialog.Show('MakePlan', 'No Rooms in Selection')
+
 for new_view in new_views:
     view = create_plan(new_view.name, chosen_view_type_name, new_view.level_id,
                        bbox=new_view.bbox)
-
-# t = Transaction(doc, 'Smart Align - Align')
-# t.Start()
