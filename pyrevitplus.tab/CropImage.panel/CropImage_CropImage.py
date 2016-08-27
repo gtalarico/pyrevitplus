@@ -15,8 +15,7 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
-
-__author__ = 'gtalarico@gmail.com'
+__author__ = '@gtalarico'
 
 import sys
 import os
@@ -32,6 +31,7 @@ from Autodesk.Revit.DB import Element, ElementId, BuiltInParameter
 from Autodesk.Revit.DB import Transaction, FilledRegion
 
 import clr
+from clr import StrongBox
 clr.AddReference('System')
 clr.AddReference('System.IO')
 clr.AddReference('System.Drawing')
@@ -46,13 +46,11 @@ from System.Drawing import (GraphicsUnit, Graphics,
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
-
 def get_selected_elements():
-    """ Add Doc """
+    """ Returns actual Elements that are currently selected. """
     selection = uidoc.Selection
     selection_ids = selection.GetElementIds()
     selection_size = selection_ids.Count
-    # selection = uidoc.Selection.Elements  # Revit 2015
     if not selection_ids:
         TaskDialog.Show('MakePlans', 'No Elements Selected.')
         __window__.Close()
@@ -62,70 +60,31 @@ def get_selected_elements():
         elements.append(doc.GetElement(element_id))
     return elements
 
-class BoundingBoxElement(object):
-    """ Helper BoundingBoxElement Class
-    Usage:
-    bbox = BoundingBoxElement(element)
-    bbox.min: min coordinate of bounding box
-    bbox.max: min coordinate of bounding box
-    bbox.center: min coordinate of bounding box
-    """
 
-    def __init__(self, element):
-        self.element = element
-        self.bbox = element.get_BoundingBox(doc.ActiveView)
+def get_bbox_center_pt(bbox):
+    """ Returns center XYZ of BoundingBox Element"""
+    avg_x = (bbox.Min.X + bbox.Max.X) / 2
+    avg_y = (bbox.Min.Y + bbox.Max.Y) / 2
+    return XYZ(avg_x, avg_y, 0)
 
-    @property
-    def min(self):
-        x, y, z = self.bbox.Min.X, self.bbox.Min.Y, self.bbox.Min.Z
-        return XYZ(x, y, z)
-
-    @property
-    def max(self):
-        x, y, z = self.bbox.Max.X, self.bbox.Max.Y, self.bbox.Max.Z
-        return XYZ(x, y, z)
-
-    @property
-    def center(self):
-        x = (self.min.X + self.max.X) / 2
-        y = (self.min.Y + self.max.Y) / 2
-        return XYZ(x, y, 0)
-
-    def __str__(self):
-        return repr(self)
-
-def revit_transaction(transaction_name):
-    def wrap(f):
-        @wraps(f)
-        def wrapped_f(*args, **kwargs):
-            try:
-                t = Transaction(doc, transaction_name)
-                t.Start()
-            except InvalidOperationException as errmsg:
-                print('Transaciton Error: {}'.format(errmsg))
-                return_value = f(*args, **kwargs)
-            else:
-                return_value = f(*args, **kwargs)
-                t.Commit()
-            return return_value
-        return wrapped_f
-    return wrap
 
 def create_img_copy(img_path):
     """ Creates a Copy of an image in the same folder"""
     split_path = img_path.split('.')
     extension = split_path.pop(-1)
     full_path = ''.join(split_path) # Rejoins in case there are other dots
-    rnd = randint(0,1000)
-    new_img_path = '{}_cropped{}.{}'.format(full_path, rnd, extension)
-    # new_img_path = '{}_cropped.{}'.format(full_path, extension)
-
-    try:
-        IO.File.Copy(img_path, new_img_path)
-    except Exception as errmsg:
-        print('Unkown Error: {}'.format(new_img_path))
-        print(errmsg)
-    return new_img_path
+    seq_start = 1
+    while True:
+        new_img_path = '{}_cropped_{}.{}'.format(full_path, seq_start, extension)
+        try:
+            IO.File.Copy(img_path, new_img_path)
+            return new_img_path
+        except IO.IOException as errmsg:
+            seq_start +=1
+        except Exception as errmsg:
+            print('Unknown Error: {}'.format(new_img_path))
+            print(errmsg)
+            raise
 
 def crop_image(img_path, rectangle_crop):
     source_bmp = Bitmap(img_path)
@@ -143,17 +102,14 @@ def crop_image(img_path, rectangle_crop):
     return new_img_path
 
 
-
-
 #__window__.Close()
 img_element, fregion = None, None
 elements = get_selected_elements()
 
 for element in elements:
-
     if isinstance(element, FilledRegion):
         fregion = element
-        fregion_bbox = BoundingBoxElement(fregion)
+        fregion_bbox = fregion.get_BoundingBox(doc.ActiveView)
         continue
 
     for valid_type_id in element.GetValidTypes():
@@ -184,9 +140,8 @@ for element in elements:
             img_scale = img_element.get_Parameter(bip_scale).AsDouble()
             img_width = img_element.get_Parameter(bip_width_ft).AsDouble()
             img_height = img_element.get_Parameter(bip_height_ft).AsDouble()
-            # img_width = img_element.LookupParameter('Width').AsDouble()
-            # img_height = img_element.LookupParameter('Height').AsDouble()
-            img_bbox = BoundingBoxElement(img_element)
+            img_bbox = img_element.get_BoundingBox(doc.ActiveView)
+            # img_bbox = BoundingBoxElement(img_element)
 
             break
 
@@ -195,11 +150,11 @@ if not img_element or not fregion:
 else:
 
     # Absolute Height/Width of Crop Box
-    cropbox_height_ft = fregion_bbox.max.Y - fregion_bbox.min.Y
-    cropbox_width_ft = fregion_bbox.max.X - fregion_bbox.min.X
+    cropbox_height_ft = fregion_bbox.Max.Y - fregion_bbox.Min.Y
+    cropbox_width_ft = fregion_bbox.Max.X - fregion_bbox.Min.X
 
     # Relative Coordinate of Crop Box to Corner of Image
-    lw_left_crop_pt = fregion_bbox.min - img_bbox.min
+    lw_left_crop_pt = fregion_bbox.Min - img_bbox.Min
     up_left_crop_pt = lw_left_crop_pt + XYZ(0, cropbox_height_ft, 0)
 
     # Relative Origin for Cropping
@@ -221,19 +176,18 @@ else:
     new_img_path = crop_image(img_path, rectangle_crop)
 
     # New Image Options
-    options = ImageImportOptions()
-    options.Placement = BoxPlacement.Center
-    options.RefPoint = fregion_bbox.center
-    options.Resolution = img_resolution
+    import_options = ImageImportOptions()
+    import_options.Placement = BoxPlacement.Center
+    import_options.RefPoint = get_bbox_center_pt(fregion_bbox)
+    import_options.Resolution = img_resolution
 
     # Create New Image in Revit
     t = Transaction(doc, 'Crop Image')
     t.Start()
-    new_img = clr.StrongBox[Element]()
-    view = doc.ActiveView
-    doc.Import(new_img_path, options , view, new_img)
-    new_width = new_img.LookupParameter('Width')
-    new_width.Set(cropbox_width_ft)
+    new_img_element = StrongBox[Element]()
+    doc.Import(new_img_path, import_options , doc.ActiveView, new_img_element)
+    new_img_width = new_img_element.get_Parameter(bip_width_ft)
+    new_img_width.Set(cropbox_width_ft)
     t.Commit()
 
 
