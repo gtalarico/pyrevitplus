@@ -4,9 +4,18 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 
 ## Installation
 * [Install PyRevit](https://github.com/eirannejad/pyRevit/)
-* Download the latest .zip from the RELEASES tab and drop the contents in the main PyRevit Folder (same folder where __init__.py and LICENSE are) - [Releases](https://github.com/gtalarico/pyrevitplus/tree/master/release)
+* Copy Files into pyRevit directory [to create your own scripts](http://eirannejad.github.io/pyRevit/howtoaddscriptsandtabs/)
+* Installation through the pyRevit Packaga manager [coming soon](https://github.com/eirannejad/pyRevit/issues/119)
 
 ## Tools
+
+#### Auto Plans
+* Automatically create enlarged plans from selected rooms
+* [Demo](https://vimeo.com/180428842)
+
+#### Crop Image
+* Crops Selected Image by using selected filled region
+* [Demo](https://vimeo.com/180428842)
 
 #### Smart Align
 * Alignment tools for Revit.Handles a variety of objects, including annotations, rooms, and several types of family instances. Demo videos:
@@ -29,12 +38,12 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 
 ## Tools in Development
 
-#### PackageManager: TESTING
-* Prototype of a UI interface to manage pacakges from this repo
+#### PackageManager
+* Now over at the [pyrevit repo](https://github.com/eirannejad/pyRevit/issues/119)
 
-#### AnnoChart: ALPHA
-* Make bar charts from schedules. Needs documentation and more tests.
-* See demo [here](https://vimeo.com/177012499)
+#### AnnoChart:
+* Make bar charts from schedules. Needs documentation and more tests. And it's poitnless.
+* [Demo](https://vimeo.com/177012499)
 
 ---
 
@@ -44,5 +53,6 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
-* Improve Install instructions and process
-* Check 2016 + 2017 Compatibility
+* Package Manager
+* Check 2017 Compatibility
+* Re Organize Groups/Button Types
