@@ -23,6 +23,7 @@ import os
 import logging
 from functools import wraps
 from collections import namedtuple
+from random import randint
 
 from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.DB import XYZ, BoundingBoxXYZ
@@ -126,9 +127,11 @@ def revit_transaction(transaction_name):
         return wrapped_f
     return wrap
 
-def crop_image(bmp_source, rct):
+def crop_image(bmp_source, rectangle):
     # An empty bitmap which will hold the cropped image
     bmp = Bitmap(rectangle.Width, rectangle.Height)
+    print('Rectangle will be: {} X {}'.format(rectangle.Width, rectangle.Height))
+    # bmp = Bitmap(rectangle.Width, rectangle.Height)
     g = Graphics.FromImage(bmp)
     #  // Draw the given area (rectangle) of the source image
     #  // at location 0,0 on the empty bitmap (bmp)
@@ -140,8 +143,8 @@ def create_img_copy(img_path):
     split_path = img_path.split('.')
     extension = split_path.pop(-1)
     full_path = ''.join(split_path) # Rejoins in case there are other dots
-
-    new_img_path = '{}_cropped.{}'.format(full_path, extension)
+    rnd = randint(0,1000)
+    new_img_path = '{}_cropped{}.{}'.format(full_path, rnd, extension)
 
     try:
         IO.File.Copy(img_path, new_img_path)
@@ -149,7 +152,7 @@ def create_img_copy(img_path):
         print('Cropped copy already exists')
     return new_img_path
 
-# __window__.Close()
+__window__.Close()
 
 img_element, fregion = None, None
 
@@ -209,35 +212,14 @@ else:
     width = crop_width * x_ft_to_px_scale
     height = crop_height * y_ft_to_px_scale
 
+
     new_img_path = create_img_copy(img_path)
-
-    print('Img Width: ', img_width)
-    print('Img Height: ', img_height)
-    print('Img Pxl Width: ', img_pxl_width)
-    print('Img Pxl Height: ', img_pxl_height)
-    print('Img Resolution: ', img_resolution)
-
-    print('Upper_left Crop Pt: ', up_left_crop_pt)
-    print('Lower left Crop Pt: ', up_left_crop_pt)
-    print('Crop Width: ', crop_width)
-    print('Crop Height: ', crop_height)
-
-    print('SCALE X: ', x_ft_to_px_scale)
-    print('SCALE Y: ', y_ft_to_px_scale)
-    print('IMG SCALE: ', img_scale)
-
-    print('SCALED: Upper_left Crop Pt: ', up_left_crop_pt * x_ft_to_px_scale)
-    print('SCALED: Lower left Crop Pt: ', lw_left_crop_pt * y_ft_to_px_scale)
-    print('SCALED: Crop Width: ', crop_width * x_ft_to_px_scale)
-    print('SCALED: Crop Height: ', crop_height * y_ft_to_px_scale)
-
-
     source = Bitmap(img_path)
     rectangle = Rectangle(origin_x, origin_y, width, height)
-
     cropped_img = crop_image(source, rectangle)
     cropped_img.Save(new_img_path)
 
+    # New Image Options
     options = ImageImportOptions()
     options.Placement = BoxPlacement.Center
     options.RefPoint = fregion_bbox.center
@@ -251,3 +233,24 @@ else:
     new_width = new_img.LookupParameter('Width')
     new_width.Set(crop_width)
     t.Commit()
+
+
+    print('Img Width: ', img_width)
+    print('Img Height: ', img_height)
+    print('Img Pxl Width: ', img_pxl_width)
+    print('Img Pxl Height: ', img_pxl_height)
+    print('Img Resolution: ', img_resolution)
+
+    print('Upper_left Crop Pt: [{},{}]'.format(up_left_crop_pt.X, up_left_crop_pt.Y))
+    print('Lower Left Crop Pt: [{},{}]'.format(lw_left_crop_pt.X, lw_left_crop_pt.Y))
+    print('Crop Width: ', crop_width)
+    print('Crop Height: ', crop_height)
+
+    print('SCALE X: ', x_ft_to_px_scale)
+    print('SCALE Y: ', y_ft_to_px_scale)
+    print('IMG SCALE: ', img_scale)
+
+    print('SCALED: Upper_left Crop Pt: [{},{}]'.format((up_left_crop_pt * x_ft_to_px_scale).X, (up_left_crop_pt * x_ft_to_px_scale).Y))
+    print('SCALED: Lower Crop Pt: [{},{}]'.format((lw_left_crop_pt * x_ft_to_px_scale).X, (lw_left_crop_pt * x_ft_to_px_scale).Y))
+    print('SCALED: Crop Width: ', crop_width * x_ft_to_px_scale)
+    print('SCALED: Crop Height: ', crop_height * y_ft_to_px_scale)
