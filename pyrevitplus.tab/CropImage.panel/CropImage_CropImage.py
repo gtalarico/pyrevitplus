@@ -1,6 +1,6 @@
 """
 Crop Image
-Create Plans from Selected Rooms
+Crops an Image to a Filled Region Boundary
 TESTED REVIT API: 2015
 
 Copyright (c) 2014-2016 Gui Talarico
@@ -148,6 +148,7 @@ for element in elements:
 if not img_element or not fregion:
     print('Need a filled region and image selected.')
 else:
+    __window__.Close()
 
     # Absolute Height/Width of Crop Box
     cropbox_height_ft = fregion_bbox.Max.Y - fregion_bbox.Min.Y
@@ -188,11 +189,13 @@ else:
     doc.Import(new_img_path, import_options , doc.ActiveView, new_img_element)
     new_img_width = new_img_element.get_Parameter(bip_width_ft)
     new_img_width.Set(cropbox_width_ft)
+    doc.Delete(img_element.Id)
+    doc.Delete(fregion.Id)
     t.Commit()
 
-
+    # DEBUG
     # if True:
-    if False:
+    if True:
         __window__.Close()
     else:
         print('Img Width: {} ft'.format(img_width))
