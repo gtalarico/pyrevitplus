@@ -35,39 +35,26 @@ import clr
 clr.AddReference('System')
 clr.AddReference('System.IO')
 clr.AddReference('System.Drawing')
-clr.AddReference("System.Windows.Forms")
-
-#  Windows Forms Elements
-from System.Drawing.Graphics import DrawImage
-from System.Drawing import GraphicsUnit, Graphics
-from System.Drawing import Image, Rectangle, Bitmap
-from System.Drawing.Imaging import ImageFormat
-from System.Drawing import Point, Icon, Color, Size
 from System import IO
+from System.Drawing.Graphics import DrawImage
+from System.Drawing.Imaging import ImageFormat
+from System.Drawing import (GraphicsUnit, Graphics,
+                            Image, Rectangle, Bitmap,
+                            Point, Size)
+
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
-VERBOSE = True  # True to Keep Window Open
-VERBOSE = False
-
-LOG_LEVEL = logging.ERROR
-LOG_LEVEL = logging.INFO
-if VERBOSE:
-    LOG_LEVEL = logging.DEBUG
-logging.basicConfig(level=LOG_LEVEL)
-logger = logging.getLogger('Crop Image')
 
 def get_selected_elements():
     """ Add Doc """
     selection = uidoc.Selection
     selection_ids = selection.GetElementIds()
     selection_size = selection_ids.Count
-    logger.debug('selection_size: {}'.format(selection_size))
     # selection = uidoc.Selection.Elements  # Revit 2015
     if not selection_ids:
         TaskDialog.Show('MakePlans', 'No Elements Selected.')
-        # logger.error('No Elements Selected')
         __window__.Close()
         sys.exit(0)
     elements = []
@@ -76,15 +63,12 @@ def get_selected_elements():
     return elements
 
 class BoundingBoxElement(object):
-    """ BoundingBoxElement receives a Revit Object for access to properties.
+    """ Helper BoundingBoxElement Class
     Usage:
     bbox = BoundingBoxElement(element)
-    bbox.element: element
-    Properties:
     bbox.min: min coordinate of bounding box
     bbox.max: min coordinate of bounding box
-    bbox.average: min coordinate of bounding box
-
+    bbox.center: min coordinate of bounding box
     """
 
     def __init__(self, element):
@@ -127,17 +111,6 @@ def revit_transaction(transaction_name):
         return wrapped_f
     return wrap
 
-def crop_image(bmp_source, rectangle):
-    # An empty bitmap which will hold the cropped image
-    bmp = Bitmap(rectangle.Width, rectangle.Height)
-    print('Rectangle will be: {} X {}'.format(rectangle.Width, rectangle.Height))
-    # bmp = Bitmap(rectangle.Width, rectangle.Height)
-    g = Graphics.FromImage(bmp)
-    #  // Draw the given area (rectangle) of the source image
-    #  // at location 0,0 on the empty bitmap (bmp)
-    g.DrawImage(source, 0, 0, rectangle, GraphicsUnit.Pixel)
-    return bmp
-
 def create_img_copy(img_path):
     """ Creates a Copy of an image in the same folder"""
     split_path = img_path.split('.')
@@ -145,17 +118,35 @@ def create_img_copy(img_path):
     full_path = ''.join(split_path) # Rejoins in case there are other dots
     rnd = randint(0,1000)
     new_img_path = '{}_cropped{}.{}'.format(full_path, rnd, extension)
+    # new_img_path = '{}_cropped.{}'.format(full_path, extension)
 
     try:
         IO.File.Copy(img_path, new_img_path)
     except Exception as errmsg:
-        print('Cropped copy already exists')
+        print('Unkown Error: {}'.format(new_img_path))
+        print(errmsg)
     return new_img_path
 
-__window__.Close()
+def crop_image(img_path, rectangle_crop):
+    source_bmp = Bitmap(img_path)
+    new_img_path = create_img_copy(img_path)
 
+    # Without this, images that are not 96 dpi get cropped out of scale
+    source_bmp.SetResolution(96,96)
+    # An empty bitmap which will hold the cropped image
+    bmp = Bitmap(rectangle_crop.Width, rectangle_crop.Height)
+    graphic = Graphics.FromImage(bmp)
+    # Draw the given area (rectangle_crop) of the source_bmp image at location 0,0 on the empty bitmap (bmp)
+    graphic.DrawImage(source_bmp, 0, 0, rectangle_crop, GraphicsUnit.Pixel)
+    cropped_img = bmp
+    cropped_img.Save(new_img_path)
+    return new_img_path
+
+
+
+
+#__window__.Close()
 img_element, fregion = None, None
-
 elements = get_selected_elements()
 
 for element in elements:
@@ -172,52 +163,62 @@ for element in elements:
             img_element = element
             img_type = valid_type
 
+            # Type BIP Definitions
             bip_filename = BuiltInParameter.RASTER_SYMBOL_FILENAME
-            bip_pxl_height = BuiltInParameter.RASTER_SYMBOL_PIXELHEIGHT
-            bip_pxl_width = BuiltInParameter.RASTER_SYMBOL_PIXELWIDTH
+            bip_height_px = BuiltInParameter.RASTER_SYMBOL_PIXELHEIGHT
+            bip_width_px = BuiltInParameter.RASTER_SYMBOL_PIXELWIDTH
             bip_resolution = BuiltInParameter.RASTER_SYMBOL_RESOLUTION
 
             # Type Parameters
             img_path = img_type.get_Parameter(bip_filename).AsString()
-            img_pxl_width = img_type.get_Parameter(bip_pxl_width).AsInteger()
-            img_pxl_height = img_type.get_Parameter(bip_pxl_height).AsInteger()
+            img_width_px = img_type.get_Parameter(bip_width_px).AsInteger()
+            img_height_px = img_type.get_Parameter(bip_height_px).AsInteger()
             img_resolution = img_type.get_Parameter(bip_resolution).AsInteger()
 
-            # Instance Parameters
-            img_width = img_element.LookupParameter('Width').AsDouble()
-            img_height = img_element.LookupParameter('Height').AsDouble()
-            img_bbox = BoundingBoxElement(img_element)
-
+            # Instance BIP Definitions
             bip_scale = BuiltInParameter.RASTER_VERTICAL_SCALE
+            bip_width_ft = BuiltInParameter.RASTER_SHEETWIDTH # Width
+            bip_height_ft = BuiltInParameter.RASTER_SHEETHEIGHT # Height
+
+            # Instance Parameters
             img_scale = img_element.get_Parameter(bip_scale).AsDouble()
+            img_width = img_element.get_Parameter(bip_width_ft).AsDouble()
+            img_height = img_element.get_Parameter(bip_height_ft).AsDouble()
+            # img_width = img_element.LookupParameter('Width').AsDouble()
+            # img_height = img_element.LookupParameter('Height').AsDouble()
+            img_bbox = BoundingBoxElement(img_element)
 
             break
 
 if not img_element or not fregion:
     print('Need a filled region and image selected.')
 else:
-    x_ft_to_px_scale = img_pxl_width / img_width
-    y_ft_to_px_scale = img_pxl_height / img_height
 
-    crop_height = fregion_bbox.max.Y - fregion_bbox.min.Y
-    crop_width = fregion_bbox.max.X - fregion_bbox.min.X
+    # Absolute Height/Width of Crop Box
+    cropbox_height_ft = fregion_bbox.max.Y - fregion_bbox.min.Y
+    cropbox_width_ft = fregion_bbox.max.X - fregion_bbox.min.X
+
+    # Relative Coordinate of Crop Box to Corner of Image
     lw_left_crop_pt = fregion_bbox.min - img_bbox.min
-    up_left_crop_pt = lw_left_crop_pt + XYZ(0, crop_height, 0)
+    up_left_crop_pt = lw_left_crop_pt + XYZ(0, cropbox_height_ft, 0)
 
-    origin_x = up_left_crop_pt.X
-    origin_y = img_height - up_left_crop_pt.Y
+    # Relative Origin for Cropping
+    crop_pt_x_ft = up_left_crop_pt.X
+    crop_pt_y_ft = img_height - up_left_crop_pt.Y
 
-    origin_x = origin_x * x_ft_to_px_scale
-    origin_y = origin_y * y_ft_to_px_scale
-    width = crop_width * x_ft_to_px_scale
-    height = crop_height * y_ft_to_px_scale
+    # Multiplier to convert from Ft Coordinate to Pixel
+    x_ft_to_px_scale = img_width_px / img_width
+    y_ft_to_px_scale = img_height_px / img_height
 
+    # Convert ft space to pixel space
+    crop_pt_x_px = crop_pt_x_ft * x_ft_to_px_scale
+    crop_pt_y_px = crop_pt_y_ft * y_ft_to_px_scale
+    cropbox_width_px = cropbox_width_ft * x_ft_to_px_scale
+    cropbox_height_px = cropbox_height_ft * y_ft_to_px_scale
 
-    new_img_path = create_img_copy(img_path)
-    source = Bitmap(img_path)
-    rectangle = Rectangle(origin_x, origin_y, width, height)
-    cropped_img = crop_image(source, rectangle)
-    cropped_img.Save(new_img_path)
+    rectangle_crop = Rectangle(crop_pt_x_px, crop_pt_y_px,
+                               cropbox_width_px, cropbox_height_px)
+    new_img_path = crop_image(img_path, rectangle_crop)
 
     # New Image Options
     options = ImageImportOptions()
@@ -225,32 +226,40 @@ else:
     options.RefPoint = fregion_bbox.center
     options.Resolution = img_resolution
 
+    # Create New Image in Revit
     t = Transaction(doc, 'Crop Image')
     t.Start()
     new_img = clr.StrongBox[Element]()
     view = doc.ActiveView
     doc.Import(new_img_path, options , view, new_img)
     new_width = new_img.LookupParameter('Width')
-    new_width.Set(crop_width)
+    new_width.Set(cropbox_width_ft)
     t.Commit()
 
 
-    print('Img Width: ', img_width)
-    print('Img Height: ', img_height)
-    print('Img Pxl Width: ', img_pxl_width)
-    print('Img Pxl Height: ', img_pxl_height)
-    print('Img Resolution: ', img_resolution)
-
-    print('Upper_left Crop Pt: [{},{}]'.format(up_left_crop_pt.X, up_left_crop_pt.Y))
-    print('Lower Left Crop Pt: [{},{}]'.format(lw_left_crop_pt.X, lw_left_crop_pt.Y))
-    print('Crop Width: ', crop_width)
-    print('Crop Height: ', crop_height)
-
-    print('SCALE X: ', x_ft_to_px_scale)
-    print('SCALE Y: ', y_ft_to_px_scale)
-    print('IMG SCALE: ', img_scale)
-
-    print('SCALED: Upper_left Crop Pt: [{},{}]'.format((up_left_crop_pt * x_ft_to_px_scale).X, (up_left_crop_pt * x_ft_to_px_scale).Y))
-    print('SCALED: Lower Crop Pt: [{},{}]'.format((lw_left_crop_pt * x_ft_to_px_scale).X, (lw_left_crop_pt * x_ft_to_px_scale).Y))
-    print('SCALED: Crop Width: ', crop_width * x_ft_to_px_scale)
-    print('SCALED: Crop Height: ', crop_height * y_ft_to_px_scale)
+    # if True:
+    if False:
+        __window__.Close()
+    else:
+        print('Img Width: {} ft'.format(img_width))
+        print('Img Height: {} ft'.format(img_height))
+        print('Img Pxl Width: {} px'.format(img_width_px))
+        print('Img Pxl Height: {} px'.format(img_height_px))
+        print('Img Resolution: {} DPI'.format(img_resolution))
+        print('='*50)
+        print('Crop Width FT: {} ft'.format(cropbox_width_ft))
+        print('Crop Height FT: {} ft'.format(cropbox_height_ft))
+        print('Crop Width PIXEL: {} px'.format(cropbox_width_px))
+        print('Crop Height PIXEL: {} px'.format(cropbox_height_px))
+        print('Upper_left Crop Pt: XYZ [{},{}]'.format(up_left_crop_pt.X, up_left_crop_pt.Y))
+        print('Lower Left Crop Pt: XYZ [{},{}]'.format(lw_left_crop_pt.X, lw_left_crop_pt.Y))
+        print('='*50)
+        print('SCALE FT-PX X: {}'.format(x_ft_to_px_scale))
+        print('SCALE FT-PX Y: {}'.format(y_ft_to_px_scale))
+        print('IMG SCALE: {}'.format(img_scale))
+        # DEFAULT IMG_SCALE IS 96
+        print('='*50)
+        print('SCALED: Crop Width: {}'.format(cropbox_width_ft * x_ft_to_px_scale))
+        print('SCALED: Crop Height: {}'.format(cropbox_height_ft * y_ft_to_px_scale))
+        print('SCALED: Upper_left Crop Pt: [{},{}]'.format((up_left_crop_pt * x_ft_to_px_scale).X, (up_left_crop_pt * x_ft_to_px_scale).Y))
+        print('SCALED: Lower Crop Pt: [{},{}]'.format((lw_left_crop_pt * x_ft_to_px_scale).X, (lw_left_crop_pt * x_ft_to_px_scale).Y))
