@@ -61,18 +61,24 @@ for element_id in selected_ids:
     element.Export(desktop, filename, vseop)
 
     print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
-    EXCEL = r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE"
-    if os.path.exists(EXCEL):
-        print('Excel Found. Trying to open...')
-        print('Filename is: ', filename)
-        try:
-            full_filepath = os.path.join(desktop, filename)
-            os.system('start excel \"{path}\"'.format(path=full_filepath))
-        except:
-            print('Sorry, something failed:')
-            print('Filepath: {}'.filename)
-            print('EXCEL Path: {}'.format(EXCEL))
-    else:
-        print('Could not find excel. EXCEL: {}'.format(EXCEL))
+    excel_paths = [
+        r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe"
+        r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
+        r"C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe",
+        r"C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE",
+        ]
+    for excel in excel_paths:
+        if os.path.exists(excel):
+            print('Excel Found. Trying to open...')
+            print('Filename is: ', filename)
+            try:
+                full_filepath = os.path.join(desktop, filename)
+                os.system('start excel \"{path}\"'.format(path=full_filepath))
+            except:
+                print('Sorry, something failed:')
+                print('Filepath: {}'.filename)
+                print('excel Path: {}'.format(excel))
+        else:
+            print('Could not find excel. excel: {}'.format(excel_paths))
 
 print('Done')
