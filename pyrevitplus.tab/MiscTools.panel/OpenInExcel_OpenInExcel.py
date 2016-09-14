@@ -62,7 +62,7 @@ for element_id in selected_ids:
 
     print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
     excel_paths = [
-        r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe"
+        r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe",
         r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
         r"C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe",
         r"C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE",
@@ -74,11 +74,11 @@ for element_id in selected_ids:
             try:
                 full_filepath = os.path.join(desktop, filename)
                 os.system('start excel \"{path}\"'.format(path=full_filepath))
+                __window__.Close()
+                break
             except:
                 print('Sorry, something failed:')
                 print('Filepath: {}'.filename)
                 print('excel Path: {}'.format(excel))
-        else:
-            print('Could not find excel. excel: {}'.format(excel_paths))
-
-print('Done')
+    else:
+        print('Could not find excel. Paths: {}'.format(excel_paths))
