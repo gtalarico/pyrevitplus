@@ -23,14 +23,11 @@ __author__ = '@gtalarico'
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.UI import TaskDialog
 
-import os
-import pickle
-import sys
-from tempfile import gettempdir
+__window__.Close()
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
-__window__.Close()
+
 
 
 if not doc.IsFamilyDocument:
