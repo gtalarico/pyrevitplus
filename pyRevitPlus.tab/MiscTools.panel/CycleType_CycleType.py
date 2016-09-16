@@ -24,23 +24,58 @@ from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.UI import TaskDialog
 
 import os
-import subprocess
+import pickle
+import sys
+from tempfile import gettempdir
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
-
-t = Transaction(doc, 'Cycle Type')
 __window__.Close()
 
-if doc.IsFamilyDocument:
-    current_type = doc.FamilyManager.CurrentType
-    print('Current:', current_type.Name)
-    family_types = doc.FamilyManager.Types
-    for n, family_type in enumerate(family_types):
-        t.Start()
+family_types = [x for x in doc.FamilyManager.Types]
+current_type = doc.FamilyManager.CurrentType
+temp = os.path.join(gettempdir(), 'CycleTypes')
 
-        doc.FamilyManager.CurrentType = family_type
-        t.Commit()
-        break
-else:
+def dump_types():
+    type_list = []
+    for family_type in family_type_names:
+        type_list.append(family_type.Name)
+
+    with open(temp, 'w') as fp:
+        pickle.dump(type_list, fp)
+    return type_list
+
+
+if not doc.IsFamilyDocument:
     TaskDialog.Show('pyRevitPlus', 'Must be in Family Document.')
+
+else:
+    try:
+        with open(temp, 'r') as fp:
+            type_list = pickle.load(fp)
+    except IOError:
+            type_list = dump_types()
+
+    is_next = False
+    max = 0
+    while True:
+        max += 1
+        if max > 10:
+            raise Exception('Max Limit')
+
+        for family_type in family_types:
+            if family_type.Name == current_type.Name:
+                print('Found Current.')
+                is_next = True
+                continue
+            if is_next:
+                t = Transaction(doc, 'Cycle Type')
+                t.Start()
+                doc.FamilyManager.CurrentType = family_type
+                t.Commit()
+                sys.exit()
+
+
+
+
+        #
