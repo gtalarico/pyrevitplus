@@ -16,7 +16,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__author__ = 'gtalarico@gmail.com'
+__author__ = '@gtalarico'
 
 import sys
 import os

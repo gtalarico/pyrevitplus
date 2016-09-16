@@ -8,6 +8,7 @@ github.com/gtalarico
 
 """
 
+__doc__ = 'Makes Floor objects from selected rooms.'
 __author__ = '@gtalarico'
 
 import sys

@@ -12,7 +12,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __doc__ = 'Paste a Viewport Placement from memory'
-__author__ = 'Gui Talarico | gtalarico@gmail.com'
+__author__ = '@gtalarico'
 __version__ = '0.1.0'
 
 import os

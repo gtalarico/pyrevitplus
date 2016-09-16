@@ -4,10 +4,10 @@ Removes Underlay From Selected Views.
 TESTED REVIT API: 2015 | 2016
 
 Copyright (c) 2014-2016 Gui Talarico
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico
 
 This script is part of PyRevitPlus: Extensions for PyRevit
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico
 
 --------------------------------------------------------
 PyRevit Notice:
@@ -20,7 +20,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 # http://dp-stuff.org/revit-view-underlay-property-python-problem/
 
 __doc__ = 'Removes Underlay parameter from selected views.'
-__author__ = 'gtalarico@gmail.com'
+__author__ = '@gtalarico'
 __version__ = '0.2.0'
 
 import clr

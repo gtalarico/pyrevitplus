@@ -15,6 +15,7 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+__doc__ = 'Crops Images using any filled region.'
 __author__ = '@gtalarico'
 
 import sys

@@ -4,7 +4,7 @@ Cycle through available types in family manager
 TESTED REVIT API: 2015
 
 Copyright (c) 2016 Gui Talarico
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico
 
 This script is part of PyRevitPlus: Extensions for PyRevit
 github.com/gtalarico/pyrevitplus/
@@ -18,6 +18,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 __doc__ = 'Cycle through available types in family manager. \n' \
           'Must be in Family Document.'
+__author__ = '@gtalarico'
 
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.UI import TaskDialog
