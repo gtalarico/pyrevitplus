@@ -16,7 +16,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__doc__ = 'Cycle through available types in family manager. \n' \
+__doc__ = 'Cycles through available types in family manager. \n' \
           'Must be in Family Document.'
 __author__ = '@gtalarico'
 
@@ -32,9 +32,6 @@ doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 __window__.Close()
 
-family_types = [x for x in doc.FamilyManager.Types]
-current_type = doc.FamilyManager.CurrentType
-temp = os.path.join(gettempdir(), 'CycleTypes')
 
 def dump_types():
     type_list = []
@@ -50,6 +47,10 @@ if not doc.IsFamilyDocument:
     TaskDialog.Show('pyRevitPlus', 'Must be in Family Document.')
 
 else:
+    family_types = [x for x in doc.FamilyManager.Types]
+    current_type = doc.FamilyManager.CurrentType
+    temp = os.path.join(gettempdir(), 'CycleTypes')
+    
     try:
         with open(temp, 'r') as fp:
             type_list = pickle.load(fp)
