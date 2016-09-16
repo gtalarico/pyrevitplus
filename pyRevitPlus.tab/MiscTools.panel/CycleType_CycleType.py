@@ -1,7 +1,7 @@
 """
 CycleType
 Cycle through available types in family manager
-TESTED REVIT API: 2015
+TESTED REVIT API: 2015 + 2016
 
 Copyright (c) 2016 Gui Talarico
 github.com/gtalarico
@@ -16,6 +16,8 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
+__window__.Close()
+
 __doc__ = 'Cycles through available types in family manager. \n' \
           'Must be in Family Document.'
 __author__ = '@gtalarico'
@@ -23,12 +25,8 @@ __author__ = '@gtalarico'
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.UI import TaskDialog
 
-__window__.Close()
-
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
-
-
 
 if not doc.IsFamilyDocument:
     TaskDialog.Show('pyRevitPlus', 'Must be in Family Document.')
