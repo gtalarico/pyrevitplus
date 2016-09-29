@@ -3,11 +3,13 @@
 Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/master/README.md)
 
 ## Installation
-* [Install PyRevit](https://github.com/eirannejad/pyRevit/)
-* Copy Files into pyRevit directory [to create your own scripts](http://eirannejad.github.io/pyRevit/howtoaddscriptsandtabs/)
-* Installation through the pyRevit Packaga manager [coming soon](https://github.com/eirannejad/pyRevit/issues/119)
+* [Install PyRevit](https://github.com/eirannejad/pyRevit/) v3
+* Use pyRevit Package Manager (pyRevit > Package Manager)
 
 ## Tools
+
+#### Family Type Cycle
+* Cycles through available types in a family manager document.
 
 #### Auto Plans
 * Automatically create enlarged plans from selected rooms
