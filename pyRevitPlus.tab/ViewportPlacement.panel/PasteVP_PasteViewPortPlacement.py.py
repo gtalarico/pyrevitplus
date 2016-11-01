@@ -3,7 +3,7 @@ Copyright (c) 2016 Gui Talarico
 
 CopyPasteViewportPlacemenet
 Copy and paste the placement of viewports across sheets
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico | @gtalarico
 
 --------------------------------------------------------
 pyRevit Notice:

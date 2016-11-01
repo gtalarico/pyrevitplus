@@ -3,9 +3,13 @@ Make Floors
 Create Floors from Selected Rooms
 TESTED REVIT API: 2015
 
-Gui Talarico
-github.com/gtalarico
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | @gtalarico
 
+--------------------------------------------------------
+PyRevit Notice:
+Copyright (c) 2014-2016 Ehsan Iran-Nejad
+pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __doc__ = 'Makes Floor objects from selected rooms.'

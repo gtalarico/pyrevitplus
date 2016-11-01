@@ -3,11 +3,8 @@ Make Plans
 Create Plans from Selected Rooms
 TESTED REVIT API: 2015
 
-Copyright (c) 2014-2016 Gui Talarico
-github.com/gtalarico | gtalarico@gmail.com
-
 This script is part of PyRevitPlus: Extensions for PyRevit
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico | @gtalarico
 
 --------------------------------------------------------
 PyRevit Notice:

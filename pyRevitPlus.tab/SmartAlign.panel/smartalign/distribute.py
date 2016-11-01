@@ -4,10 +4,10 @@ Provides Aligning functionality for various Revit Objects.
 TESTED REVIT API: 2015 | 2016
 
 Copyright (c) 2014-2016 Gui Talarico
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico | @gtalarico
 
 This script is part of PyRevitPlus: Extensions for PyRevit
-github.com/gtalarico | gtalarico@gmail.com
+github.com/gtalarico | @gtalarico
 
 --------------------------------------------------------
 PyRevit Notice:
@@ -16,7 +16,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__author__ = 'gtalarico@gmail.com'
+__author__ = '@gtalarico'
 __version = '0.4.0'
 
 import sys
