@@ -3,7 +3,7 @@
 Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/master/README.md)
 
 ## Installation
-* [Install PyRevit](https://github.com/eirannejad/pyRevit/) v3
+* [Install PyRevit](https://github.com/eirannejad/pyRevit/) v4
 * Use pyRevit Package Manager (pyRevit > Package Manager)
 
 ## Tools
