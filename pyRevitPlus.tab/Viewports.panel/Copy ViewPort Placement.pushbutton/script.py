@@ -11,25 +11,23 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__doc__ = 'Paste a Viewport Placement from memory'
+__doc__ = 'Copy a Viewport Placement into memory'
 __author__ = '@gtalarico'
 __version__ = '0.1.0'
+__title__ = "Copy Viewport\nPlacement"
 
 import os
 import pickle
 from tempfile import gettempdir
 from collections import namedtuple
 
-from Autodesk.Revit.DB import Transaction
-from Autodesk.Revit.DB import Viewport, XYZ
+from Autodesk.Revit.DB import Viewport
 from Autodesk.Revit.UI import TaskDialog
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
-temp = os.path.join(gettempdir(), 'ViewPlacement')
-Point = namedtuple('Point', ['X', 'Y', 'Z'])
-
+Point = namedtuple('Point', ['X', 'Y','Z'])
 
 selected_ids = uidoc.Selection.GetElementIds()
 
@@ -37,19 +35,13 @@ if selected_ids.Count == 1:
     for element_id in selected_ids:
         element = doc.GetElement(element_id)
         if isinstance(element, Viewport):
-            try:
-                with open(temp, 'rb') as fp:
-                    pt = pickle.load(fp)
-            except IOError:
-                TaskDialog.Show('pyRevitPlus', 'Could not find saved viewport placement.\nCopy a Viewport Placement first.')
-            else:
-                saved_pt = XYZ(pt.X, pt.Y, pt.Z)
-                t = Transaction(doc, 'Paste Viewport Placement')
-                t.Start()
-                element.SetBoxCenter(saved_pt)
-                element.Pinned = True
-                t.Commit()
-
+            center = element.GetBoxCenter()
+            pt = Point(center.X, center.Y, center.Z)
+            temp = os.path.join(gettempdir(), 'ViewPlacement')
+            with open(temp, 'wb') as fp:
+                pickle.dump(pt, fp)
+            print('Viewport Saved')
+            break
 else:
     TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
 

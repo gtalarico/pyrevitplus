@@ -24,6 +24,7 @@ https://github.com/eirannejad/pyRevit/blob/master/LICENSE
 """
 
 __doc__ = 'Opens Selected schedules in Excel'
+__title__ = "Open in\nExcel"
 
 from Autodesk.Revit.DB import ViewSchedule, ViewScheduleExportOptions
 from Autodesk.Revit.DB import ExportColumnHeaders, ExportTextQualifier

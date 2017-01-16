@@ -19,6 +19,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 __doc__ = "Selects All Door Instances that have been Mirrored."
 __author__ = '@gtalarico'
 __version__ = '0.3.0'
+__title__ = "Select Mirrored\nDoors"
 
 import clr
 

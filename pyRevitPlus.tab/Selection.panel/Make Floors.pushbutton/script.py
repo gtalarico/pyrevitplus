@@ -14,6 +14,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 __doc__ = 'Makes Floor objects from selected rooms.'
 __author__ = '@gtalarico'
+__title__ = "Make\nFloors"
 
 import sys
 import os

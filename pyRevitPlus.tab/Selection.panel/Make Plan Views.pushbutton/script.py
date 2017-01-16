@@ -14,6 +14,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 """
 
 __author__ = '@gtalarico'
+__title__ = "Make Plan\nViews"
 
 import sys
 import os

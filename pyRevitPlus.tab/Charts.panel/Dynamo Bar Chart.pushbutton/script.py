@@ -13,6 +13,7 @@ from annochart.revit import doc, uidoc, ActiveView
 
 
 __doc__ = "Creates Bar Chart from active Schedule"
+__title__ = "Dynamo\nBar Chart"
 
 values = IN[0]
 schedule = IN[1]
