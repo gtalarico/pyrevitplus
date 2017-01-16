@@ -22,6 +22,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 __doc__ = 'Removes Underlay parameter from selected views.'
 __author__ = '@gtalarico'
 __version__ = '0.2.0'
+__title__ = "Remove\nUnderlay"
 
 import clr
 clr.AddReference('RevitAPI')
