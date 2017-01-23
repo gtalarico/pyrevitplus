@@ -58,7 +58,7 @@ for element_id in selected_ids:
         print('No schedule in Selection. Skipping...')
         continue
 
-    filename = "".join(x for x in element.ViewName if x not in ['*']) + '.txt'
+    filename = "".join(x for x in element.ViewName if x not in {'*','/'}) + '.txt'
     element.Export(desktop, filename, vseop)
 
     print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
