@@ -23,63 +23,89 @@ See this link for a copy of the GNU General Public License protecting this packa
 https://github.com/eirannejad/pyRevit/blob/master/LICENSE
 """
 
-__doc__ = 'Opens Selected schedules in Excel'
+__doc__ = "Opens Selected Schedules in a Spreadsheet (Excel, LibreOffice)"
 __title__ = "Open in\nExcel"
 
 from Autodesk.Revit.DB import ViewSchedule, ViewScheduleExportOptions
 from Autodesk.Revit.DB import ExportColumnHeaders, ExportTextQualifier
-from Autodesk.Revit.DB import BuiltInCategory, ViewSchedule
-from Autodesk.Revit.UI import TaskDialog
+from Autodesk.Revit.DB import BuiltInCategory
 
 import os
-import subprocess
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
+engine = None
+editors_paths = [
+    r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe",
+    r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
+    r"C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe",
+    r"C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE",
+    
+    r"C:\Program Files (x86)\LibreOffice 5\program\scalc.exe",
+    r"C:\Program Files (x86)\LibreOffice 4\program\scalc.exe",
+]   # to add another editor, just check if the name can be used as cmd shortcut
 
-desktop = os.path.expandvars('%temp%\\')
-# desktop = os.path.expandvars('%userprofile%\\desktop')
+def export():    
+    uidoc = __revit__.ActiveUIDocument
+    doc = __revit__.ActiveUIDocument.Document    
+    
+    destination = os.path.expandvars('%temp%\\')
+    # destination = os.path.expandvars('%userprofile%\\desktop')        
+    # destination = os.path.dirname(doc.PathName) #+ '\\schedules'
 
-vseop = ViewScheduleExportOptions()
-# vseop.ColumnHeaders = ExportColumnHeaders.None
-# vseop.TextQualifier = ExportTextQualifier.None
-# vseop.FieldDelimiter = ','
-# vseop.Title = False
+    vseop = ViewScheduleExportOptions()
+    # vseop.ColumnHeaders = ExportColumnHeaders.None
+    # vseop.TextQualifier = ExportTextQualifier.None
+    # vseop.FieldDelimiter = ','
+    # vseop.Title = False
 
-selected_ids = uidoc.Selection.GetElementIds()
+    selected_ids = uidoc.Selection.GetElementIds()
 
-if not selected_ids.Count:
-    '''If nothing is selected, use Active View'''
-    selected_ids=[ doc.ActiveView.Id ]
+    if not selected_ids.Count:
+        '''If nothing is selected, use Active View'''
+        selected_ids=[ doc.ActiveView.Id ]
+        
+    passed = 0
+    for element_id in selected_ids:
+        passed += 1
+        element = doc.GetElement(element_id)
+        if not isinstance(element, ViewSchedule):
+            print('No schedule in Selection. Skipping...')
+            continue
 
-for element_id in selected_ids:
-    element = doc.GetElement(element_id)
-    if not isinstance(element, ViewSchedule):
-        print('No schedule in Selection. Skipping...')
-        continue
-
-    filename = "".join(x for x in element.ViewName if x not in ['*']) + '.txt'
-    element.Export(desktop, filename, vseop)
-
-    print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
-    excel_paths = [
-        r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe",
-        r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
-        r"C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe",
-        r"C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE",
-        ]
-    for excel in excel_paths:
-        if os.path.exists(excel):
-            print('Excel Found. Trying to open...')
-            print('Filename is: ', filename)
-            try:
-                full_filepath = os.path.join(desktop, filename)
-                os.system('start excel \"{path}\"'.format(path=full_filepath))
+        filename = "".join(x for x in element.ViewName if x not in {'/','*'}) + '.txt'
+        full_filepath = os.path.join(destination, filename)
+        
+        try:
+            step='EXPORTING schedule {} to TEXTFILE'.format(element.ViewName)
+            element.Export(destination, filename, vseop)
+            print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
+            
+            step='OPENING with {}'.format(engine)
+            os.system('start {0} \"{1}\"'.format(engine, full_filepath))
+            if passed == selected_ids.Count:
                 __window__.Close()
-                break
-            except:
-                print('Sorry, something failed:')
-                print('Filepath: {}'.filename)
-                print('excel Path: {}'.format(excel))
-    else:
-        print('Could not find excel. Paths: {}'.format(excel_paths))
+            
+        except:
+            passed -= 1
+            print('Sorry, an Error occured in {}'.format(step))
+            print('...Maybe another dialog is opened ?')
+            print('- Filename: {}'.format(filename))
+            print('- Destination: {}'.format(destination))
+            print('- Editor used : {}\n'.format(lpath))
+    
+    print('Export Ended. You can close this dialog.')
+    
+# loop then split the name to adapt the command in func export()
+for lpath in editors_paths:
+    if os.path.exists(lpath):    
+        basepath = os.path.basename(lpath)
+        engine = os.path.splitext(basepath)[0]
+        if engine : 
+            print('Editor Found. Trying to export...\n')
+            export()
+            break
+else:
+    print('Could not find editor with the following paths:\n'
+    '{}\n'.format('\n'.join(editors_paths)))
+    print('You can edit this script to add another folder :\n'
+    '{}\n'.format(os.path.realpath(__file__)))
+    
