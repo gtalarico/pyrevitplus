@@ -21,10 +21,6 @@ import os
 import pickle
 from tempfile import gettempdir
 
-# TODO: Move VP wrapper to rpw.
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import rpw
 from rpw import doc, uidoc, DB, UI
 from viewport_wrapper import Point, ViewPortWrapper
