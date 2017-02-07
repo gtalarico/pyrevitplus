@@ -16,10 +16,11 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__doc__ = 'Opens Selected schedules in Excel'
+__doc__ = 'Opens Selected Schedules in Excel (or similar)'
 __author__ = '@gtalarico'
 __version__ = '0.3.0'
 __title__ = "Open in\nExcel"
+
 
 import os
 import sys
@@ -29,13 +30,20 @@ import time
 import rpw
 from rpw import doc, uidoc, DB, UI
 
+EXCELPATHS_FILENAME = 'OpenInExcel_UserPaths.txt'
+EXCELPATHS_FILEPATH = os.path.join(os.path.dirname(__file__), EXCELPATHS_FILENAME)
 # Export Settings
 temp_folder = os.path.expandvars('%temp%\\')
 export_options = DB.ViewScheduleExportOptions()
 
 # Get Saved Excelp Paths
-saved_paths = os.path.join(os.path.dirname(__file__), 'OpenInExcel_UserPaths.txt')
-with open(saved_paths) as fp:
+if not os.path.exists(EXCELPATHS_FILEPATH):
+    UI.TaskDialog.Show('OpenInExcel', 'Could not find the File: \n'
+                       '{} in:\n {}'.format(
+                       EXCELPATHS_FILENAME, os.path.dirname(__file__)))
+    sys.exit()
+
+with open(EXCELPATHS_FILEPATH) as fp:
     excel_paths = fp.read().split('\n')
 
 for excel_path in excel_paths:
@@ -63,6 +71,8 @@ elif not selected_schedules:
                        in the Project Browser.')
 
 for schedule in selected_schedules:
+    if isinstance(schedule, DB.ScheduleSheetInstance):
+        schedule = doc.GetElement(schedule.ScheduleId)
     schedule_name = "".join([x for x in schedule.ViewName if x.isalnum()])
 
     # Adds random digits to avoid name clash
