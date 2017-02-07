@@ -1,0 +1,9 @@
+C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE
+C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe
+C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE
+C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE
+C:\Program Files\Microsoft Office\Office15\EXCEL.EXE
+C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe
+C:\Program Files (x86)\LibreOffice 5\program\scalc.exe
+C:\Program Files (x86)\LibreOffice 4\program\scalc.exe
+C:\YOUR_CUSTOM_PATH\TO_EXCEL\EXCEL.EXE

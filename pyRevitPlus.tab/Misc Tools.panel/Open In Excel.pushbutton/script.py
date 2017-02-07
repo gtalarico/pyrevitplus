@@ -1,85 +1,80 @@
 """
+OpenInExcel
+Opens Selected schedules in Excel
+TESTED REVIT API: 2015 | 2016 | 2017
 
-Copyright (c) 2016 WeWork | Gui Talarico
-Base script taken from pyRevit Respository.
+Copyright (c) 2014-2016 Gui Talarico @ WeWork
+github.com/gtalarico
 
-pyRevit Notice
-#################################################################
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico
+
+--------------------------------------------------------
+PyRevit Notice:
 Copyright (c) 2014-2016 Ehsan Iran-Nejad
-Python scripts for Autodesk Revit
+pyRevit: repository at https://github.com/eirannejad/pyRevit
 
-This file is part of pyRevit repository at https://github.com/eirannejad/pyRevit
-
-pyRevit is a free set of scripts for Autodesk Revit: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as published by
-the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-See this link for a copy of the GNU General Public License protecting this package.
-https://github.com/eirannejad/pyRevit/blob/master/LICENSE
 """
 
 __doc__ = 'Opens Selected schedules in Excel'
+__author__ = '@gtalarico'
+__version__ = '0.3.0'
 __title__ = "Open in\nExcel"
 
-from Autodesk.Revit.DB import ViewSchedule, ViewScheduleExportOptions
-from Autodesk.Revit.DB import ExportColumnHeaders, ExportTextQualifier
-from Autodesk.Revit.DB import BuiltInCategory, ViewSchedule
-from Autodesk.Revit.UI import TaskDialog
-
 import os
+import sys
 import subprocess
+import time
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
+import rpw
+from rpw import doc, uidoc, DB, UI
 
-desktop = os.path.expandvars('%temp%\\')
-# desktop = os.path.expandvars('%userprofile%\\desktop')
+# Export Settings
+temp_folder = os.path.expandvars('%temp%\\')
+export_options = DB.ViewScheduleExportOptions()
 
-vseop = ViewScheduleExportOptions()
-# vseop.ColumnHeaders = ExportColumnHeaders.None
-# vseop.TextQualifier = ExportTextQualifier.None
-# vseop.FieldDelimiter = ','
-# vseop.Title = False
+# Get Saved Excelp Paths
+saved_paths = os.path.join(os.path.dirname(__file__), 'OpenInExcel_UserPaths.txt')
+with open(saved_paths) as fp:
+    excel_paths = fp.read().split('\n')
 
-selected_ids = uidoc.Selection.GetElementIds()
+for excel_path in excel_paths:
+    if os.path.exists(excel_path):
+        break
+else:
+    UI.TaskDialog.Show('OpenInExcel', 'Could not find Excel Path \n'
+                       'Please add your Excel path to OpenInExcel_UserPaths.txt'
+                       'and try again.')
+    os.system('start notepad \"{path}\"'.format(path=saved_paths))
+    sys.exit()
 
-if not selected_ids.Count:
-    '''If nothing is selected, use Active View'''
-    selected_ids=[ doc.ActiveView.Id ]
 
-for element_id in selected_ids:
-    element = doc.GetElement(element_id)
-    if not isinstance(element, ViewSchedule):
-        print('No schedule in Selection. Skipping...')
+selection = rpw.Selection()
+
+# Get any selected View Schedules or Schedule Instances
+selected_schedules = [e for e in selection.elements
+                      if isinstance(e, (DB.ViewSchedule, DB.ScheduleSheetInstance))]
+
+# If no view is selected, check if Active View is a schedule
+if not selected_schedules and isinstance(uidoc.ActiveView, DB.ViewSchedule):
+    selected_schedules = [uidoc.ActiveView]
+elif not selected_schedules:
+    UI.TaskDialog.Show('OpenInExcel', 'Must have a schedule open or selected \
+                       in the Project Browser.')
+
+for schedule in selected_schedules:
+    schedule_name = "".join([x for x in schedule.ViewName if x.isalnum()])
+
+    # Adds random digits to avoid name clash
+    filename = '{}_{}.txt'.format(schedule_name, str(time.time())[-2:])
+
+    schedule.Export(temp_folder, filename, export_options)
+
+    try:
+        full_filepath = os.path.join(temp_folder, filename)
+        os.system('start excel \"{path}\"'.format(path=full_filepath))
         continue
+    except:
+        print('Sorry, something failed:')
 
-    filename = "".join(x for x in element.ViewName if x not in ['*']) + '.txt'
-    element.Export(desktop, filename, vseop)
-
-    print('EXPORTED: {0}\n      TO: {1}\n'.format(element.ViewName, filename))
-    excel_paths = [
-        r"C:\Program Files\Programs\Office 2010\Office14\EXCEL.exe",
-        r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
-        r"C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.exe",
-        r"C:\Program Files (x86)\Microsoft Office\Office15\EXCEL.EXE",
-        ]
-    for excel in excel_paths:
-        if os.path.exists(excel):
-            print('Excel Found. Trying to open...')
-            print('Filename is: ', filename)
-            try:
-                full_filepath = os.path.join(desktop, filename)
-                os.system('start excel \"{path}\"'.format(path=full_filepath))
-                __window__.Close()
-                break
-            except:
-                print('Sorry, something failed:')
-                print('Filepath: {}'.filename)
-                print('excel Path: {}'.format(excel))
-    else:
-        print('Could not find excel. Paths: {}'.format(excel_paths))
+__window__.Close()
