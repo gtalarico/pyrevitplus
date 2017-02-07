@@ -269,7 +269,15 @@ def get_location(element, align_method):
         logger.debug('Got Location from .Location: {}'.format(location_pt))
         return location_pt
 
-        
+    try:  # Try Coord - For Text Elements
+        location_pt = element.Coord
+    except Exception as errmsg:
+        logger.debug('Could not get .Coord.')
+        logger.debug('Error: {}'.format(errmsg))
+    else:
+        location_pt = PointElement(location_pt.X, location_pt.Y, location_pt.Z)
+        logger.debug('Got Location from .Location: {}'.format(location_pt))
+        return location_pt
 
     try:  # Not Room: Try Bounding Box Method
         bbox = BoundingBoxElement(element)
