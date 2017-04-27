@@ -1,3 +1,16 @@
+"""
+ViewportPlacemenet Tools
+
+@gtalarico
+This script is part of PyRevitPlus: Extensions for PyRevit
+github.com/gtalarico | @gtalarico
+
+--------------------------------------------------------
+RevitPythonWrapper: revitpythonwrapper.readthedocs.io
+pyRevit: github.com/eirannejad/pyRevit
+
+"""
+
 import rpw
 from rpw import doc, DB
 from collections import namedtuple
