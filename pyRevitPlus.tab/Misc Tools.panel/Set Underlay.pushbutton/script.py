@@ -43,7 +43,7 @@ levels = rpw.db.Collector(of_category='OST_Levels', is_not_type=True).elements
 
 levels_dict = {level.Name: level.Id for level in levels}
 levels_dict['None'] = DB.ElementId.InvalidElementId
-level_id = rpw.forms.SelectFromList('Select Underlay', levels_dict,
+level_id = rpw.ui.forms.SelectFromList('Select Underlay', levels_dict,
                                     description="Select a Level")
 
 selected_underlay_id = level_id

@@ -16,7 +16,6 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 __author__ = '@gtalarico'
 __title__ = "Make Plan\nViews"
 
-__window__.Close()
 
 import sys
 import os
@@ -25,7 +24,7 @@ from collections import namedtuple
 from Autodesk.Revit.DB.Architecture import Room
 
 import rpw
-from rpw import doc, uidoc, DB, UI, platform
+from rpw import revit, doc, uidoc, DB, UI, db, ui
 
 DEFAULT_CROP = '0.75'  # About 9"
 
@@ -34,27 +33,25 @@ selection = rpw.ui.Selection()
 selected_rooms = [e for e in selection.elements if isinstance(e, Room)]
 
 if not selected_rooms:
-    UI.TaskDialog.Show('MakeViews', 'You need to select at lest one Room.')
-    sys.exit()
+    ui.forms.Alert('MakeViews', 'You need to select at lest one Room.')
 
 # Get View Types and Prompt User
-plan_types = rpw.db.Collector(of_class='ViewFamilyType', is_type=True).elements
+plan_types = db.Collector(of_class='ViewFamilyType', is_type=True).wrapped_elements
 
 # Filter all view types that are FloorPlan or CeilingPlan
-plan_types_options = {DB.Element.Name.GetValue(t): t for t in plan_types
-                      if t.ViewFamily == DB.ViewFamily.FloorPlan or
-                      t.ViewFamily == DB.ViewFamily.CeilingPlan
-                      }
+plan_types_options = {t.name: t for t in plan_types
+                      if t.view_family.name in ('FloorPlan', 'CeilingPlan')}
 
-plan_type = rpw.forms.SelectFromList('MakeViews', plan_types_options,
-                                description='Select View Type')
+plan_type = ui.forms.SelectFromList('MakeViews', plan_types_options,
+                                    description='Select View Type')
 view_type_id = plan_type.Id
 
-crop_offset = rpw.forms.TextInput('MakeViews', default=DEFAULT_CROP,
-                                  description='View Crop Offset [feet]'
-                                  )
+crop_offset = ui.forms.TextInput('MakeViews', default=DEFAULT_CROP,
+                                 description='View Crop Offset [feet]'
+                                 )
 
 crop_offset = float(crop_offset)
+
 
 def offset_bbox(bbox, offset):
     """
@@ -85,11 +82,10 @@ def create_plan(new_view, view_type_id, cropbox_visible=False, remove_underlay=T
     viewplan = DB.ViewPlan.Create(doc, view_type_id, level_id)
     viewplan.CropBoxActive = True
     viewplan.CropBoxVisible = cropbox_visible
-    if remove_underlay and platform.get('revit') == '2015':
+    if remove_underlay and revit.version.year == '2015':
         underlay_param = viewplan.get_Parameter(DB.BuiltInParameter.VIEW_UNDERLAY_ID)
         underlay_param.Set(DB.ElementId.InvalidElementId)
     viewplan.CropBox = bbox
-
 
     counter = 1
     while True:
@@ -113,7 +109,7 @@ NewView = namedtuple('NewView', ['name', 'bbox', 'level_id'])
 new_views = []
 
 for room in selected_rooms:
-        room = rpw.db.Element(room)
+        room = db.Element(room)
         room_level_id = room.Level.Id
         room_name = room.parameters['Name'].value
         room_number = room.parameters['Number'].value

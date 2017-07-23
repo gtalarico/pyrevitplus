@@ -17,7 +17,7 @@ __author__ = '@gtalarico'
 __title__ = "Make\nFloors"
 
 
-__window__.Close()
+# __window__.Close()
 
 import sys
 import os
@@ -26,9 +26,9 @@ from collections import namedtuple
 from Autodesk.Revit.DB.Architecture import Room
 
 import rpw
-from rpw import doc, uidoc, DB, UI
+from rpw import doc, uidoc, DB, UI, db, ui
 
-selection = rpw.ui.Selection()
+selection = ui.Selection()
 
 selected_rooms = [e for e in selection.elements if isinstance(e, Room)]
 if not selected_rooms:
@@ -38,8 +38,8 @@ if not selected_rooms:
 floor_types = rpw.db.Collector(of_category='OST_Floors', is_type=True).elements
 floor_type_options = {DB.Element.Name.GetValue(t): t for t in floor_types}
 
-floor_type = rpw.forms.SelectFromList('Make Floors', floor_type_options,
-                                description='Select Floor Type')
+floor_type = ui.forms.SelectFromList('Make Floors', floor_type_options,
+                                     description='Select Floor Type')
 floor_type_id = floor_type.Id
 
 

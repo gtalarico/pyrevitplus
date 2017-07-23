@@ -1,7 +1,6 @@
 """
 Crop Image
-Crops an Image to a Filled Region Boundary
-TESTED REVIT API: 2015
+Crops an Image to a Filled Region Boundary or a Diagonal Detail Line
 
 Copyright (c) 2014-2016 Gui Talarico
 github.com/gtalarico | @gtalarico
@@ -15,6 +14,7 @@ Copyright (c) 2014-2016 Ehsan Iran-Nejad
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
+
 __doc__ = 'Crops Images using any filled region.'
 __author__ = '@gtalarico'
 
@@ -29,7 +29,7 @@ from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.DB import XYZ, BoundingBoxXYZ
 from Autodesk.Revit.DB import ImageView, ImageType, ImageImportOptions, BoxPlacement
 from Autodesk.Revit.DB import Element, ElementId, BuiltInParameter
-from Autodesk.Revit.DB import Transaction, FilledRegion
+from Autodesk.Revit.DB import Transaction, FilledRegion, DetailLine
 
 import clr
 from clr import StrongBox
@@ -43,9 +43,9 @@ from System.Drawing import (GraphicsUnit, Graphics,
                             Image, Rectangle, Bitmap,
                             Point, Size)
 
+import rpw
+from rpw import doc, uidoc, DB, UI
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
 
 def get_selected_elements():
     """ Returns actual Elements that are currently selected. """
@@ -53,7 +53,7 @@ def get_selected_elements():
     selection_ids = selection.GetElementIds()
     selection_size = selection_ids.Count
     if not selection_ids:
-        TaskDialog.Show('MakePlans', 'No Elements Selected.')
+        TaskDialog.Show('CropImage', 'No Elements Selected.')
         __window__.Close()
         sys.exit(0)
     elements = []
@@ -87,10 +87,12 @@ def create_img_copy(img_path):
             print(errmsg)
             raise
 
+
 def crop_image(img_path, rectangle_crop):
+    if not os.path.exists(img_path):
+        raise Exception('Image Source path not found: {}'.format(img_path))
     source_bmp = Bitmap(img_path)
     new_img_path = create_img_copy(img_path)
-
     # Without this, images that are not 96 dpi get cropped out of scale
     source_bmp.SetResolution(96,96)
     # An empty bitmap which will hold the cropped image
@@ -102,15 +104,15 @@ def crop_image(img_path, rectangle_crop):
     cropped_img.Save(new_img_path)
     return new_img_path
 
+if not __shiftclick__:
+    __window__.Close()
 
-#__window__.Close()
-img_element, fregion = None, None
+img_element, element_bbox = None, None
 elements = get_selected_elements()
-
 for element in elements:
-    if isinstance(element, FilledRegion):
-        fregion = element
-        fregion_bbox = fregion.get_BoundingBox(doc.ActiveView)
+    # Filled Region
+    if isinstance(element, (FilledRegion, DetailLine)):
+        element_bbox = element.get_BoundingBox(doc.ActiveView)
         continue
 
     for valid_type_id in element.GetValidTypes():
@@ -146,17 +148,17 @@ for element in elements:
 
             break
 
-if not img_element or not fregion:
-    print('Need a filled region and image selected.')
+if not img_element or not element_bbox:
+    rpw.ui.forms.Alert('Need an image + a filled region or a detail line selected.')
 else:
-    __window__.Close()
+    # __window__.Close()
 
     # Absolute Height/Width of Crop Box
-    cropbox_height_ft = fregion_bbox.Max.Y - fregion_bbox.Min.Y
-    cropbox_width_ft = fregion_bbox.Max.X - fregion_bbox.Min.X
+    cropbox_height_ft = element_bbox.Max.Y - element_bbox.Min.Y
+    cropbox_width_ft = element_bbox.Max.X - element_bbox.Min.X
 
     # Relative Coordinate of Crop Box to Corner of Image
-    lw_left_crop_pt = fregion_bbox.Min - img_bbox.Min
+    lw_left_crop_pt = element_bbox.Min - img_bbox.Min
     up_left_crop_pt = lw_left_crop_pt + XYZ(0, cropbox_height_ft, 0)
 
     # Relative Origin for Cropping
@@ -180,44 +182,39 @@ else:
     # New Image Options
     import_options = ImageImportOptions()
     import_options.Placement = BoxPlacement.Center
-    import_options.RefPoint = get_bbox_center_pt(fregion_bbox)
+    import_options.RefPoint = get_bbox_center_pt(element_bbox)
     import_options.Resolution = img_resolution
 
     # Create New Image in Revit
-    t = Transaction(doc, 'Crop Image')
-    t.Start()
-    new_img_element = StrongBox[Element]()
-    doc.Import(new_img_path, import_options , doc.ActiveView, new_img_element)
-    new_img_width = new_img_element.get_Parameter(bip_width_ft)
-    new_img_width.Set(cropbox_width_ft)
-    doc.Delete(img_element.Id)
-    doc.Delete(fregion.Id)
-    t.Commit()
+    with rpw.db.Transaction('Crop Image'):
+        new_img_element = StrongBox[Element]()
+        doc.Import(new_img_path, import_options , doc.ActiveView, new_img_element)
+        new_img_width = new_img_element.get_Parameter(bip_width_ft)
+        new_img_width.Set(cropbox_width_ft)
+        doc.Delete(img_element.Id)
+        doc.Delete(element.Id)
 
-    # DEBUG
-    # if True:
-    if True:
-        __window__.Close()
-    else:
-        print('Img Width: {} ft'.format(img_width))
-        print('Img Height: {} ft'.format(img_height))
-        print('Img Pxl Width: {} px'.format(img_width_px))
-        print('Img Pxl Height: {} px'.format(img_height_px))
-        print('Img Resolution: {} DPI'.format(img_resolution))
-        print('='*50)
-        print('Crop Width FT: {} ft'.format(cropbox_width_ft))
-        print('Crop Height FT: {} ft'.format(cropbox_height_ft))
-        print('Crop Width PIXEL: {} px'.format(cropbox_width_px))
-        print('Crop Height PIXEL: {} px'.format(cropbox_height_px))
-        print('Upper_left Crop Pt: XYZ [{},{}]'.format(up_left_crop_pt.X, up_left_crop_pt.Y))
-        print('Lower Left Crop Pt: XYZ [{},{}]'.format(lw_left_crop_pt.X, lw_left_crop_pt.Y))
-        print('='*50)
-        print('SCALE FT-PX X: {}'.format(x_ft_to_px_scale))
-        print('SCALE FT-PX Y: {}'.format(y_ft_to_px_scale))
-        print('IMG SCALE: {}'.format(img_scale))
-        # DEFAULT IMG_SCALE IS 96
-        print('='*50)
-        print('SCALED: Crop Width: {}'.format(cropbox_width_ft * x_ft_to_px_scale))
-        print('SCALED: Crop Height: {}'.format(cropbox_height_ft * y_ft_to_px_scale))
-        print('SCALED: Upper_left Crop Pt: [{},{}]'.format((up_left_crop_pt * x_ft_to_px_scale).X, (up_left_crop_pt * x_ft_to_px_scale).Y))
-        print('SCALED: Lower Crop Pt: [{},{}]'.format((lw_left_crop_pt * x_ft_to_px_scale).X, (lw_left_crop_pt * x_ft_to_px_scale).Y))
+
+
+    print('Img Width: {} ft'.format(img_width))
+    print('Img Height: {} ft'.format(img_height))
+    print('Img Pxl Width: {} px'.format(img_width_px))
+    print('Img Pxl Height: {} px'.format(img_height_px))
+    print('Img Resolution: {} DPI'.format(img_resolution))
+    print('='*50)
+    print('Crop Width FT: {} ft'.format(cropbox_width_ft))
+    print('Crop Height FT: {} ft'.format(cropbox_height_ft))
+    print('Crop Width PIXEL: {} px'.format(cropbox_width_px))
+    print('Crop Height PIXEL: {} px'.format(cropbox_height_px))
+    print('Upper_left Crop Pt: XYZ [{},{}]'.format(up_left_crop_pt.X, up_left_crop_pt.Y))
+    print('Lower Left Crop Pt: XYZ [{},{}]'.format(lw_left_crop_pt.X, lw_left_crop_pt.Y))
+    print('='*50)
+    print('SCALE FT-PX X: {}'.format(x_ft_to_px_scale))
+    print('SCALE FT-PX Y: {}'.format(y_ft_to_px_scale))
+    print('IMG SCALE: {}'.format(img_scale))
+    # DEFAULT IMG_SCALE IS 96
+    print('='*50)
+    print('SCALED: Crop Width: {}'.format(cropbox_width_ft * x_ft_to_px_scale))
+    print('SCALED: Crop Height: {}'.format(cropbox_height_ft * y_ft_to_px_scale))
+    print('SCALED: Upper_left Crop Pt: [{},{}]'.format((up_left_crop_pt * x_ft_to_px_scale).X, (up_left_crop_pt * x_ft_to_px_scale).Y))
+    print('SCALED: Lower Crop Pt: [{},{}]'.format((lw_left_crop_pt * x_ft_to_px_scale).X, (lw_left_crop_pt * x_ft_to_px_scale).Y))
