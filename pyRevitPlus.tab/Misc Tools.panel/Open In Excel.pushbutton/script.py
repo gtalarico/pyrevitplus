@@ -57,7 +57,7 @@ else:
     sys.exit()
 
 
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 
 # Get any selected View Schedules or Schedule Instances
 selected_schedules = [e for e in selection.elements

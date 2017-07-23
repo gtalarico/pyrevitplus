@@ -25,7 +25,7 @@ log(__file__)
 from viewport_wrapper import Point, ViewPortWrapper, move_to_match_vp_placment
 
 tempfile = os.path.join(gettempdir(), 'ViewPlacement')
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 
 if __name__ == '__main__':
 

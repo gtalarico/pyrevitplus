@@ -28,7 +28,7 @@ import sys
 import rpw
 from rpw import doc, uidoc, DB, UI, platform
 
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 selected_views = [e for e in selection.elements if isinstance(e, DB.View)]
 
 if platform.get('revit') != '2015':
@@ -39,21 +39,17 @@ if not selected_views:
     UI.TaskDialog.Show('Set Underlay', 'Must have a view actively selected in Project Browser.')
     __window__.Close(); sys.exit()
 
-levels = rpw.Collector(of_category='OST_Levels', is_not_type=True).elements
+levels = rpw.db.Collector(of_category='OST_Levels', is_not_type=True).elements
 
 levels_dict = {level.Name: level.Id for level in levels}
 levels_dict['None'] = DB.ElementId.InvalidElementId
-form = rpw.forms.SelectFromList('Select Underlay', levels_dict.keys(),
-                                description="Select a Level")
-form.show()
+level_id = rpw.forms.SelectFromList('Select Underlay', levels_dict,
+                                    description="Select a Level")
 
-if not form.selected:
-    __window__.Close(); sys.exit()
-
-selected_underlay_id = levels_dict[form.selected]
-with rpw.Transaction('Batch Set Underlay to None'):
+selected_underlay_id = level_id
+with rpw.db.Transaction('Batch Set Underlay to None'):
     for view in selected_views:
-        rpw_view = rpw.Element(view)
+        rpw_view = rpw.db.Element(view)
         rpw_view.parameters.builtins['VIEW_UNDERLAY_ID'] = selected_underlay_id
 
 __window__.Close()

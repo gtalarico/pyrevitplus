@@ -28,28 +28,22 @@ from Autodesk.Revit.DB.Architecture import Room
 import rpw
 from rpw import doc, uidoc, DB, UI
 
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 
 selected_rooms = [e for e in selection.elements if isinstance(e, Room)]
 if not selected_rooms:
     UI.TaskDialog.Show('MakeFloors', 'You need to select at lest one Room.')
     sys.exit()
 
-floor_types = rpw.Collector(of_category='OST_Floors', is_type=True).elements
+floor_types = rpw.db.Collector(of_category='OST_Floors', is_type=True).elements
 floor_type_options = {DB.Element.Name.GetValue(t): t for t in floor_types}
 
-form = rpw.forms.SelectFromList('Make Floors', floor_type_options.keys(),
+floor_type = rpw.forms.SelectFromList('Make Floors', floor_type_options,
                                 description='Select Floor Type')
-form.show()
-
-if not form.selected:
-    __window__.Close()
-    sys.exit()
-
-floor_type_id = floor_type_options[form.selected].Id
+floor_type_id = floor_type.Id
 
 
-@rpw.Transaction.ensure('Make Floor')
+@rpw.db.Transaction.ensure('Make Floor')
 def make_floor(new_floor):
     floor_curves = DB.CurveArray()
     for boundary_segment in new_floor.boundary:

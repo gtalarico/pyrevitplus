@@ -28,7 +28,7 @@ from viewport_wrapper import Point, ViewPortWrapper, move_to_match_vp_placment
 if __name__ == '__main__':
 
     tempfile = os.path.join(gettempdir(), 'ViewPlacement')
-    selection = rpw.Selection()
+    selection = rpw.ui.Selection()
 
     if len(selection) == 1 and isinstance(selection[0], DB.Viewport):
         viewport = selection[0]

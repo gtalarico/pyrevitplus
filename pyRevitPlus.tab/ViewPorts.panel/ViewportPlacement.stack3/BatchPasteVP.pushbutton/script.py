@@ -33,7 +33,7 @@ from viewport_wrapper import Point, ViewPortWrapper
 from viewport_wrapper import Point, ViewPortWrapper, move_to_match_vp_placment
 
 tempfile = os.path.join(gettempdir(), 'ViewPlacement')
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 
 try:
     with open(tempfile, 'rb') as fp:
@@ -45,7 +45,7 @@ else:
     saved_pt = DB.XYZ(pt.X, pt.Y, pt.Z)
 
 for viewsheet in [e for e in selection.elements if isinstance(e, DB.ViewSheet)]:
-    viewports = rpw.Collector(view=viewsheet, of_class='Viewport').elements
+    viewports = rpw.db.Collector(view=viewsheet, of_class='Viewport').elements
     for viewport in viewports:
         view = doc.GetElement(viewport.ViewId)
         if isinstance(view, DB.ViewPlan):

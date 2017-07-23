@@ -52,12 +52,12 @@ def move_to_match_vp_placment(viewport, saved_pt):
     current_origin = vp.project_origin_in_sheetspace
     delta = saved_pt - current_origin
     if viewport.Pinned:
-        with rpw.Transaction('Unpin Viewport'):
+        with rpw.db.Transaction('Unpin Viewport'):
             viewport.Pinned = False
-    with rpw.Transaction('Paste Viewport Placement'):
+    with rpw.db.Transaction('Paste Viewport Placement'):
         viewport.Location.Move(delta)
         viewport.Pinned = True
-        viewport = rpw.Element(viewport)
+        viewport = rpw.db.Element(viewport)
         try:
             viewport.parameters.builtins['VIEWER_CROP_REGION_VISIBLE'] = 0
             viewport.parameters.builtins['VIEWER_ANNOTATION_CROP_ACTIVE'] = 0

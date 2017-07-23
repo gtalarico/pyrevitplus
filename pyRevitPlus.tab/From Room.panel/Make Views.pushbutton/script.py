@@ -30,7 +30,7 @@ from rpw import doc, uidoc, DB, UI, platform
 DEFAULT_CROP = '0.75'  # About 9"
 
 # Validate + Filter Selection
-selection = rpw.Selection()
+selection = rpw.ui.Selection()
 selected_rooms = [e for e in selection.elements if isinstance(e, Room)]
 
 if not selected_rooms:
@@ -38,7 +38,7 @@ if not selected_rooms:
     sys.exit()
 
 # Get View Types and Prompt User
-plan_types = rpw.Collector(of_class='ViewFamilyType', is_type=True).elements
+plan_types = rpw.db.Collector(of_class='ViewFamilyType', is_type=True).elements
 
 # Filter all view types that are FloorPlan or CeilingPlan
 plan_types_options = {DB.Element.Name.GetValue(t): t for t in plan_types
@@ -46,23 +46,15 @@ plan_types_options = {DB.Element.Name.GetValue(t): t for t in plan_types
                       t.ViewFamily == DB.ViewFamily.CeilingPlan
                       }
 
-form = rpw.forms.SelectFromList('MakeViews', plan_types_options.keys(),
+plan_type = rpw.forms.SelectFromList('MakeViews', plan_types_options,
                                 description='Select View Type')
-form.show()
+view_type_id = plan_type.Id
 
-if not form.selected:
-    __window__.Close(); sys.exit()
+crop_offset = rpw.forms.TextInput('MakeViews', default=DEFAULT_CROP,
+                                  description='View Crop Offset [feet]'
+                                  )
 
-view_type_id = plan_types_options[form.selected].Id
-
-form = rpw.forms.TextInput('MakeViews', default=DEFAULT_CROP,
-                           description='View Crop Offset [feet]'
-                           )
-form.show()
-if not form.selected:
-    __window__.Close(); sys.exit()
-
-crop_offset = float(form.selected)
+crop_offset = float(crop_offset)
 
 def offset_bbox(bbox, offset):
     """
@@ -81,7 +73,7 @@ def offset_bbox(bbox, offset):
     return newBbox
 
 
-@rpw.Transaction.ensure('Create View')
+@rpw.db.Transaction.ensure('Create View')
 def create_plan(new_view, view_type_id, cropbox_visible=False, remove_underlay=True):
     """Create a Drafting View"""
 
@@ -121,7 +113,7 @@ NewView = namedtuple('NewView', ['name', 'bbox', 'level_id'])
 new_views = []
 
 for room in selected_rooms:
-        room = rpw.Element(room)
+        room = rpw.db.Element(room)
         room_level_id = room.Level.Id
         room_name = room.parameters['Name'].value
         room_number = room.parameters['Number'].value
