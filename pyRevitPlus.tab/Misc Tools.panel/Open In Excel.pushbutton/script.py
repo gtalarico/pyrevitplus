@@ -87,4 +87,4 @@ for schedule in selected_schedules:
     except:
         print('Sorry, something failed:')
 
-__window__.Close()
+#__window__.Close()

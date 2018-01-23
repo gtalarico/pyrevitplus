@@ -54,7 +54,7 @@ def get_selected_elements():
     selection_size = selection_ids.Count
     if not selection_ids:
         TaskDialog.Show('CropImage', 'No Elements Selected.')
-        __window__.Close()
+      #__window__.Close()
         sys.exit(0)
     elements = []
     for element_id in selection_ids:
@@ -105,7 +105,7 @@ def crop_image(img_path, rectangle_crop):
     return new_img_path
 
 if not __shiftclick__:
-    __window__.Close()
+  #__window__.Close()
 
 img_element, element_bbox = None, None
 elements = get_selected_elements()

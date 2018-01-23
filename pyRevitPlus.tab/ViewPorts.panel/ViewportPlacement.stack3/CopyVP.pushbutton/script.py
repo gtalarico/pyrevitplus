@@ -40,4 +40,4 @@ if __name__ == '__main__':
     else:
         UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
 
-    __window__.Close()
+  #__window__.Close()

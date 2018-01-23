@@ -37,7 +37,7 @@ if platform.get('revit') != '2015':
 
 if not selected_views:
     UI.TaskDialog.Show('Set Underlay', 'Must have a view actively selected in Project Browser.')
-    __window__.Close(); sys.exit()
+  #__window__.Close(); sys.exit()
 
 levels = rpw.db.Collector(of_category='OST_Levels', is_not_type=True).elements
 
@@ -52,4 +52,4 @@ with rpw.db.Transaction('Batch Set Underlay to None'):
         rpw_view = rpw.db.Element(view)
         rpw_view.parameters.builtins['VIEW_UNDERLAY_ID'] = selected_underlay_id
 
-__window__.Close()
+#__window__.Close()

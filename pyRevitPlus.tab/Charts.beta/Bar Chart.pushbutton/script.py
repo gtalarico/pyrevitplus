@@ -44,4 +44,4 @@ if schedule_dict:
     uidoc.ActiveView = view
     print('Done')
 
-    __window__.Close()
+  #__window__.Close()

@@ -16,7 +16,7 @@ pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
 
-__window__.Close()
+#__window__.Close()
 
 __doc__ = 'Cycles through available types in family manager. \n' \
           'Must be in Family Document.'
