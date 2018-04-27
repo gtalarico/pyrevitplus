@@ -23,7 +23,7 @@ from smartalign.core import Align, VERBOSE
 
 if not VERBOSE:
   #__window__.Close()
-
-ALIGN = Align.HDIST
+    
+    ALIGN = Align.HDIST
 # ALIGN = Align.VDIST
 main(ALIGN)

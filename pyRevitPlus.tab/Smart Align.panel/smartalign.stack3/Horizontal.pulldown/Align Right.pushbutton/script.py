@@ -23,10 +23,10 @@ from smartalign.core import Align, VERBOSE
 
 if not VERBOSE:
   #__window__.Close()
-
+    
 # ALIGN = Align.HCENTER
 # ALIGN = Align.HLEFT
-ALIGN = Align.HRIGHT
+    ALIGN = Align.HRIGHT
 # ALIGN = Align.VCENTER
 # ALIGN = Align.VTOP
 # ALIGN = Align.VBOTTOM

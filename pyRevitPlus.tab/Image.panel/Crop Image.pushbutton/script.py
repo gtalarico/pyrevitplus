@@ -105,9 +105,9 @@ def crop_image(img_path, rectangle_crop):
     return new_img_path
 
 if not __shiftclick__:
-  #__window__.Close()
-
-img_element, element_bbox = None, None
+    #__window__.Close()
+    
+    img_element, element_bbox = None, None
 elements = get_selected_elements()
 for element in elements:
     # Filled Region
