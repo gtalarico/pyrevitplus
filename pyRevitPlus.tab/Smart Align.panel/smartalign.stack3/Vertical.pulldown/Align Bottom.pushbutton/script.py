@@ -10,7 +10,7 @@ pyRevit Notice:
 pyRevit: repository at https://github.com/eirannejad/pyRevit
 
 """
-
+#pylint: disable=E0401,W0621,W0631,C0413,C0111,C0103
 __author__ = 'Gui Talarico | @gtalarico'
 __version__ = '0.4.0'
 __doc__ = 'Align Elements Vertically: Bottom'
@@ -22,7 +22,8 @@ from smartalign.align import main
 from smartalign.core import Align, VERBOSE
 
 if not VERBOSE:
-  #__window__.Close()
+    #__window__.Close()
+    pass
 
 # ALIGN = Align.HCENTER
 # ALIGN = Align.HLEFT
