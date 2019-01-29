@@ -1,10 +1,10 @@
-# PyRevit Plus
+# pyRevit Plus
 
-Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/master/README.md)
+Extensions for [pyRevit](https://eirannejad.github.io/pyRevit/)
 
 ## Installation
-* [Install PyRevit](https://github.com/eirannejad/pyRevit/) v4
-* Use pyRevit Package Manager (pyRevit > Package Manager)
+* [Install Latest pyRevit](https://eirannejad.github.io/pyRevit/)
+* Use pyRevit Package Manager (pyRevit > Extensions)
 
 ## Tools
 
@@ -29,13 +29,13 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 * [Distribute Horizontal](https://vimeo.com/176463031)
 * [Distribute Vertical](https://vimeo.com/176463029)
 
-#### Select Mirrored Doors [Included in default PyRevit lib]
+#### Select Mirrored Doors [Included in default pyRevit lib]
 * Selects all door instances that have been mirrored
 
-#### Remove Underlay [Included in default PyRevit lib]
+#### Remove Underlay [Included in default pyRevit lib]
 * Removes Underlay from all selected Views
 
-#### Open In Excel [Based on PyRevit Schedule Export Script]
+#### Open In Excel [Based on pyRevit Schedule Export Script]
 * [Opens all selected Schedules in Excel](https://vimeo.com/175722720)
 
 ## Tools in Development
@@ -50,9 +50,9 @@ Extensions for [PyRevit](https://raw.githubusercontent.com/eirannejad/pyRevit/ma
 ---
 
 ## Credits
-* [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing PyRevit
+* [Ehsan Iran-Nejad](https://github.com/eirannejad) for developing pyRevit
 * [Icons8](https://icons8.com/) and its contributors for the sweet free icons
-* Everyone else  [listed on the PyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
+* Everyone else  [listed on the pyRevit Repo](https://github.com/eirannejad/pyRevit/blob/master/README.md#credits)
 
 ## Todo:
 * Package Manager
