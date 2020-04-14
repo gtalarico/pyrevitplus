@@ -48,6 +48,7 @@ with open(EXCELPATHS_FILEPATH) as fp:
 
 for excel_path in excel_paths:
     if os.path.exists(excel_path):
+    recipient = excel_path
         break
 else:
     UI.TaskDialog.Show('OpenInExcel', 'Could not find Excel Path \n'
@@ -73,7 +74,10 @@ elif not selected_schedules:
 for schedule in selected_schedules:
     if isinstance(schedule, DB.ScheduleSheetInstance):
         schedule = doc.GetElement(schedule.ScheduleId)
-    schedule_name = "".join([x for x in schedule.ViewName if x.isalnum()])
+    if getattr(schedule, "Title", None):
+        schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
+    else:
+    schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
 
     # Adds random digits to avoid name clash
     filename = '{}_{}.txt'.format(schedule_name, str(time.time())[-2:])
@@ -82,7 +86,7 @@ for schedule in selected_schedules:
 
     try:
         full_filepath = os.path.join(temp_folder, filename)
-        os.system('start excel \"{path}\"'.format(path=full_filepath))
+        os.system('start \"{excell}\" \"{path}\"'.format(path=full_filepath, excell=recipient))
         continue
     except:
         print('Sorry, something failed:')
