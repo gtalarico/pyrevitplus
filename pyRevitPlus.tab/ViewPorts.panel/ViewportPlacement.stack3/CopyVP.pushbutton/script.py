@@ -30,14 +30,17 @@ if __name__ == '__main__':
     tempfile = os.path.join(gettempdir(), 'ViewPlacement')
     selection = rpw.ui.Selection()
 
-    if len(selection) == 1 and isinstance(selection[0], DB.Viewport):
-        viewport = selection[0]
+    if len(selection) == 1 and isinstance(selection[0].unwrap(), DB.Viewport):
+        viewport = selection[0].unwrap()
         vp = ViewPortWrapper(viewport)
         origin = vp.project_origin_in_sheetspace
         pt = Point(origin.X, origin.Y, origin.Z)
         with open(tempfile, 'wb') as fp:
             pickle.dump(pt, fp)
     else:
-        UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
+        if len(selection) <> 1:
+            UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
+        else:
+            UI.TaskDialog.Show('pyRevitPlus', 'Not a viewport selected')
 
   #__window__.Close()

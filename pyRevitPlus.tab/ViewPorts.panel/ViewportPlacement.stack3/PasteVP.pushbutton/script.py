@@ -29,8 +29,8 @@ selection = rpw.ui.Selection()
 
 if __name__ == '__main__':
 
-    if len(selection) == 1 and isinstance(selection[0], DB.Viewport):
-        viewport = selection[0]
+    if len(selection) == 1 and isinstance(selection[0].unwrap(), DB.Viewport):
+        viewport = selection[0].unwrap()
         try:
             with open(tempfile, 'rb') as fp:
                 pt = pickle.load(fp)
@@ -40,7 +40,10 @@ if __name__ == '__main__':
             saved_pt = DB.XYZ(pt.X, pt.Y, pt.Z)
             move_to_match_vp_placment(viewport, saved_pt)
     else:
-        UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
+        if len(selection) <> 1:
+            UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
+        else:
+            UI.TaskDialog.Show('pyRevitPlus', 'Not a viewport selected')
 
   #__window__.Close()
 
