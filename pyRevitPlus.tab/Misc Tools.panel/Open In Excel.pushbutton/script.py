@@ -48,7 +48,7 @@ with open(EXCELPATHS_FILEPATH) as fp:
 
 for excel_path in excel_paths:
     if os.path.exists(excel_path):
-    recipient = excel_path
+        recipient = excel_path
         break
 else:
     UI.TaskDialog.Show('OpenInExcel', 'Could not find Excel Path \n'
@@ -77,7 +77,7 @@ for schedule in selected_schedules:
     if getattr(schedule, "Title", None):
         schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
     else:
-    schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
+        schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
 
     # Adds random digits to avoid name clash
     filename = '{}_{}.txt'.format(schedule_name, str(time.time())[-2:])
