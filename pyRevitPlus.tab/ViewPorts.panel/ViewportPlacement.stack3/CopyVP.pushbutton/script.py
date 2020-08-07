@@ -36,7 +36,7 @@ if __name__ == '__main__':
     selection = rpw.ui.Selection()
     
     if len(selection) <> 1:
-            UI.TaskDialog.Show('pyRevitPlus', 'Select 1 Viewport. No more, no less!')
+            UI.TaskDialog.Show('pyRevitPlus', 'Select a single Viewport or Schedule. No more, no less!')
             exit(0);
            
     if isinstance(selection[0].unwrap(), DB.Viewport) or isinstance(selection[0].unwrap(), DB.ScheduleSheetInstance):
