@@ -49,5 +49,5 @@ fp.close()
 msg = 'Saved active view crop boundary of {} points to {}'.format(i,tempfile)
 #print(msg)
 
-UI.TaskDialog.Show('pyRevitPlus+', msg)
+UI.TaskDialog.Show('pyRevitPlus', msg)
 

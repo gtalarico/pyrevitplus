@@ -75,19 +75,7 @@ else:
 			print('Boundary in boundary should represent one closed curve loop without self-intersections, consisting of non-zero length straight lines in a plane parallel to the view plane. ')
 	doc.Regenerate()
 	t.Commit()
-	#print('pyRevitPlus: regenerating')
-		
-	#cActiveView1 = doc.ActiveView
-	#cShpMan1 = cActiveView1.GetCropRegionShapeManager()
-	#cBoundaryList1 = cShpMan1.GetCropShape()
-	#cIterator1 = cBoundaryList1[0].GetCurveLoopIterator()
-	#for idx1, cCurve1 in enumerate(cIterator1):
-		# print("i={}".format(i))
- 	#	cPoint =  cCurve1.GetEndPoint(1)
- 	#	print(' Current point {}: [{}, {}, {}]'.format(idx1, cPoint.X, cPoint.Y, cPoint.Z))
- 
 	
-
 #msg = 'Loaded saved view crop boundary of {} points to {}'.format(ptArray.Count,tempfile)
 #print(msg)
 #UI.TaskDialog.Show('pyRevitPlus+', msg)

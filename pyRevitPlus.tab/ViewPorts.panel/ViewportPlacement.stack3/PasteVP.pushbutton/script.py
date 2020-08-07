@@ -23,8 +23,8 @@ from tempfile import gettempdir
 
 import rpw
 from rpw import doc, uidoc, DB, UI
-#from logger import log
-#log(__file__)
+from logger import log
+log(__file__)
 from viewport_wrapper import Point, ViewPortWrapper, move_to_match_vp_placment
 from schedule_wrapper import ScheduleSheetWrapper, move_to_match_placement
 
