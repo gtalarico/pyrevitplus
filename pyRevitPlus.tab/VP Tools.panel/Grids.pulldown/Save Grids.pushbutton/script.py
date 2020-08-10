@@ -35,6 +35,18 @@ Axis = namedtuple('Axis', ['Name', 'Start', 'End','StartBubble', 'EndBubble', 'S
 tempfile = os.path.join(gettempdir(), 'GridPlacement')
 
 cView = doc.ActiveView
+
+
+
+if cView.ViewType == DB.ViewType.Section or cView == DB.ViewType.Elevation:
+    experimental = True
+    UI.TaskDialog.Show('pyRevitPlus', 'Support for \'{}\' view type is experimental!'.format(cView.ViewType))
+else:
+    if not((cView == DB.ViewType.FloorPlan) or (cView == DB.ViewType.CeilingPlan) or (cView == DB.ViewType.Detail) or (cView == DB.ViewType.AreaPlan)):
+        UI.TaskDialog.Show('pyRevitPlus', 'View type \'{}\' not supported'.format(cView.ViewType))
+        exit(0)
+        
+        
 selection = rpw.ui.Selection()
 
 #if len(selection) <> 1:
@@ -101,7 +113,7 @@ for cGrid in selection:
             UI.TaskDialog.Show('pyRevitPlus', 'Skipping non- grid element \'{}\''.format(el.Name))
         
 if n<>1:
-    msg = 'Saved {} grid placements to {}'.format(n-1,tempfile)
+    msg = 'Saved {} grid placements to {}'.format(n,tempfile)
 else:
     msg = 'Saved gris \'{}\' placement to {}'.format(cGridLine['Name'],tempfile)
  

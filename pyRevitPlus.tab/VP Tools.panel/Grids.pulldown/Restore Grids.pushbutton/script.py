@@ -35,6 +35,14 @@ tempfile = os.path.join(gettempdir(), 'GridPlacement')
 
 cView = doc.ActiveView
 
+if cView.ViewType == DB.ViewType.Section or cView == DB.ViewType.Elevation:
+    experimental = True
+    UI.TaskDialog.Show('pyRevitPlus', 'Support for \'{}\' view type is experimental!'.format(cView.ViewType))
+else:
+    if not((cView == DB.ViewType.FloorPlan) or (cView == DB.ViewType.CeilingPlan) or (cView == DB.ViewType.Detail) or (cView == DB.ViewType.AreaPlan)):
+        UI.TaskDialog.Show('pyRevitPlus', 'View type \'{}\' not supported'.format(cView.ViewType))
+        exit(0)
+
 Axes = rpw.db.Collector(view=cView, of_class='Grid').get_elements(wrapped=False)
 
 try:
@@ -43,7 +51,7 @@ try:
 except IOError:
     UI.TaskDialog.Show('pyRevitPlus', 'Could not find saved placementof the grid.\nSave placement first.')
 
-n= 0
+n=0
 
 for cAxis in Axes:
         #axis = cAxis.unwrap()
@@ -60,11 +68,17 @@ for cAxis in Axes:
                     cGridData = GridLines[cAxis.Name]
 
                     tmp = cCurve.GetEndPoint(0)
-                    pt0 = DB.XYZ(cGridData['Start'].X, cGridData['Start'].Y, tmp.Z)
+                    if cView.ViewType == DB.ViewType.Section or cView == DB.ViewType.Elevation:
+                        pt0 = DB.XYZ(tmp.X, tmp.Y, cGridData['Start'].Z)
+                    else:
+                        pt0 = DB.XYZ(cGridData['Start'].X, cGridData['Start'].Y, tmp.Z)
 
 
                     tmp1 = cCurve.GetEndPoint(1)
-                    pt1 = DB.XYZ(cGridData['End'].X, cGridData['End'].Y, tmp1.Z)
+                    if cView.ViewType == DB.ViewType.Section or cView == DB.ViewType.Elevation:
+                        pt1 = DB.XYZ(tmp.X, tmp.Y, cGridData['End'].Z)
+                    else:
+                        pt1 = DB.XYZ(cGridData['End'].X, cGridData['End'].Y, tmp1.Z)
                     
                     if isinstance(cCurve, DB.Arc):
                         #ptc = DB.XYZ(cGridData['Center'].X, cGridData['Center'].Y, tmp1.Z)
