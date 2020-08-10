@@ -95,12 +95,15 @@ for cGrid in selection:
             GridLines[cGridLine['Name']] = cGridLine
             n += 1
     else:
-        UI.TaskDialog.Show('pyRevitPlus', 'Skipping non- grid element \'{}\''.format(el.Name))
+        if isinstance(el, DB.MultiSegmentGrid):
+            UI.TaskDialog.Show('pyRevitPlus', 'Skipping yet unsupported Multi-Segment grid \'{}\''.format(el.Name))
+        else: 
+            UI.TaskDialog.Show('pyRevitPlus', 'Skipping non- grid element \'{}\''.format(el.Name))
         
 if n<>1:
-    msg = 'Saved {} axes placements to {}'.format(n,tempfile)
+    msg = 'Saved {} grid placements to {}'.format(n-1,tempfile)
 else:
-    msg = 'Saved axis \'{}\' placement to {}'.format(cGridLine['Name'],tempfile)
+    msg = 'Saved gris \'{}\' placement to {}'.format(cGridLine['Name'],tempfile)
  
 	
 if n>0:

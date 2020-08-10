@@ -86,11 +86,13 @@ for cAxis in Axes:
                         if cGridData['StartBubble'] and cGridData['StartBubbleVisible']:
                             cAxis.ShowBubbleInView(DB.DatumEnds.End0, cView)
                             if 'Leader0Anchor' in cGridData:
-                            #    lA = DB.XYZ(cGridData['Leader0Anchor'].X, cGridData['Leader0Anchor'].Y, cGridData['Leader0Anchor'].Z)
-                            #    lEnd = DB.XYZ(cGridData['Leader0End'].X, cGridData['Leader0End'].Y, cGridData['Leader0End'].Z)
-                            #    lE = DB.XYZ(cGridData['Leader0Elbow'].X, cGridData['Leader0Elbow'].Y, cGridData['Leader0Elbow'].Z)
                                 if not cAxis.GetLeader(DB.DatumEnds.End0, cView):
                                     cLeader = cAxis.AddLeader(DB.DatumEnds.End0, cView)
+                            #        cLeader = cAxis.GetLeader(DB.DatumEnds.End0, cView)
+                            #        cLeader.Anchor = DB.XYZ(cGridData['Leader0Anchor'].X, cGridData['Leader0Anchor'].Y, cGridData['Leader0Anchor'].Z)
+                            #        cLeader.Elbow = DB.XYZ(cGridData['Leader0Elbow'].X, cGridData['Leader0Elbow'].Y, cGridData['Leader0Elbow'].Z)
+                            #        cLeader.End = DB.XYZ(cGridData['Leader0End'].X, cGridData['Leader0End'].Y, cGridData['Leader0End'].Z)
+                                    
                                 
                         else:
                             cAxis.HideBubbleInView(DB.DatumEnds.End0, cView)
@@ -98,11 +100,13 @@ for cAxis in Axes:
                         if cGridData['EndBubble'] and cGridData['EndBubbleVisible']:
                             cAxis.ShowBubbleInView(DB.DatumEnds.End1, cView)
                             if 'Leader1Anchor' in cGridData:
-                            #    lA = DB.XYZ(cGridData['Leader1Anchor'].X, cGridData['Leader1Anchor'].Y, cGridData['Leader1Anchor'].Z)
-                            #    lEnd = DB.XYZ(cGridData['Leader1End'].X, cGridData['Leader1End'].Y, cGridData['Leader1End'].Z)
-                            #    lE = DB.XYZ(cGridData['Leader1Elbow'].X, cGridData['Leader1Elbow'].Y, cGridData['Leader1Elbow'].Z)
                                 if not cAxis.GetLeader(DB.DatumEnds.End1, cView):
                                     cLeader = cAxis.AddLeader(DB.DatumEnds.End1, cView)
+                            #        cLeader = cAxis.GetLeader(DB.DatumEnds.End1, cView)
+                            #        cLeader.Anchor = DB.XYZ(cGridData['Leader1Anchor'].X, cGridData['Leader1Anchor'].Y, cGridData['Leader1Anchor'].Z)
+                            #        cLeader.Elbow = DB.XYZ(cGridData['Leader1Elbow'].X, cGridData['Leader1Elbow'].Y, cGridData['Leader1Elbow'].Z)
+                            #        cLeader.End = DB.XYZ(cGridData['Leader1End'].X, cGridData['Leader1End'].Y, cGridData['Leader1End'].Z)
+                                    
                         else:
                             cAxis.HideBubbleInView(DB.DatumEnds.End1, cView)
                     n += 1
