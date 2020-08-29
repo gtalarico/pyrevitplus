@@ -53,57 +53,57 @@ else:
 #            exit(0);
 
     n=0
-    GridLines = dict()
+    LevelLines = dict()
 
-    for cGrid in selection:
-        el = cGrid.unwrap()
+    for cLevel in selection:
+        el = cLevel.unwrap()
         if isinstance(el, DB.Level):
             curves=el.GetCurvesInView(DB.DatumExtentType.ViewSpecific, cView)
             if len(curves) <> 1:
                 UI.TaskDialog.Show('pyRevitPlus', 'The level line is defind by {} curves, unable to proceed', len(curves))
             else:
-                cGridLine = {'Name':'', 'Start': Point(0,0,0), 'End': Point(0,0,0), 'StartBubble': False, 'StartBubbleVisible': False, 'EndBubble': False, 'EndBubbleVisible': False}
+                cLevelLine = {'Name':'', 'Start': Point(0,0,0), 'End': Point(0,0,0), 'StartBubble': False, 'StartBubbleVisible': False, 'EndBubble': False, 'EndBubbleVisible': False}
         
                 cCurve = curves[0]
             
                 leader0 = el.GetLeader(DB.DatumEnds.End0, cView)
                 if leader0:
                     tmp = leader0.Elbow
-                    cGridLine['Leader0Elbow'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader0Elbow'] = Point(tmp.X, tmp.Y,tmp.Z)
                     tmp = leader0.End
-                    cGridLine['Leader0End'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader0End'] = Point(tmp.X, tmp.Y,tmp.Z)
                     tmp = leader0.Anchor
-                    cGridLine['Leader0Anchor'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader0Anchor'] = Point(tmp.X, tmp.Y,tmp.Z)
                 
             
                 leader1 = el.GetLeader(DB.DatumEnds.End1, cView)
                 if leader1:
                     tmp = leader1.Elbow
-                    cGridLine['Leader1Elbow'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader1Elbow'] = Point(tmp.X, tmp.Y,tmp.Z)
                     tmp = leader1.End
-                    cGridLine['Leader1End'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader1End'] = Point(tmp.X, tmp.Y,tmp.Z)
                     tmp = leader1.Anchor
-                    cGridLine['Leader1Anchor'] = Point(tmp.X, tmp.Y,tmp.Z)
+                    cLevelLine['Leader1Anchor'] = Point(tmp.X, tmp.Y,tmp.Z)
         
-                cGridLine['Name'] = el.Name
+                cLevelLine['Name'] = el.Name
         
                 tmp = cCurve.GetEndPoint(0)
-                cGridLine['Start'] = Point(tmp.X, tmp.Y,tmp.Z)
+                cLevelLine['Start'] = Point(tmp.X, tmp.Y,tmp.Z)
                 tmp = cCurve.GetEndPoint(1)
-                cGridLine['End'] = Point(tmp.X, tmp.Y,tmp.Z)
+                cLevelLine['End'] = Point(tmp.X, tmp.Y,tmp.Z)
                 if el.HasBubbleInView(DB.DatumEnds.End0, cView):
-                    cGridLine['StartBubble']=True
+                    cLevelLine['StartBubble']=True
                 if el.HasBubbleInView(DB.DatumEnds.End1, cView):
-                    cGridLine['EndBubble']=True
+                    cLevelLine['EndBubble']=True
                 if el.IsBubbleVisibleInView(DB.DatumEnds.End0, cView):
-                    cGridLine['StartBubbleVisible']=True
+                    cLevelLine['StartBubbleVisible']=True
                 if el.IsBubbleVisibleInView(DB.DatumEnds.End1, cView):
-                    cGridLine['EndBubbleVisible']=True
+                    cLevelLine['EndBubbleVisible']=True
                 #if isinstance(cCurve, DB.Arc):
                 #    tmp = cCurve.Center
-                #    cGridLine['Center'] = Point(tmp.X, tmp.Y,tmp.Z)
+                #    cLevelLine['Center'] = Point(tmp.X, tmp.Y,tmp.Z)
             
-                GridLines[cGridLine['Name']] = cGridLine
+                LevelLines[cLevelLine['Name']] = cLevelLine
                 n += 1
         else:
             #if isinstance(el, DB.MultiSegmentGrid):
@@ -114,11 +114,11 @@ else:
     if n<>1:
         msg = 'Saved {} level placements to {}'.format(n,tempfile)
     else:
-        msg = 'Saved level \'{}\' placement to {}'.format(cGridLine['Name'],tempfile)
+        msg = 'Saved level \'{}\' placement to {}'.format(cLevelLine['Name'],tempfile)
  
     if n>0:
         with open(tempfile, 'wb') as fp:
-            pickle.dump(GridLines, fp)
+            pickle.dump(LevelLines, fp)
         # close(fp)
         UI.TaskDialog.Show('pyRevitPlus', msg)
     else:

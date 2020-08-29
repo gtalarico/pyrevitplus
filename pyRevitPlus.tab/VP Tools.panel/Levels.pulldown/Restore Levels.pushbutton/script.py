@@ -35,7 +35,7 @@ Point = namedtuple('Point', ['X', 'Y','Z'])
 tempfile = os.path.join(gettempdir(), 'LevelPlacement')
 
 cView = doc.ActiveView
-Axes = rpw.ui.Selection()
+Levels = rpw.ui.Selection()
 
 
 if not(cView.ViewType == DB.ViewType.Section or cView == DB.ViewType.Elevation):
@@ -44,33 +44,33 @@ else:
     experimental = True
     UI.TaskDialog.Show('pyRevitPlus', 'Support for \'{}\' view type is experimental!'.format(cView.ViewType))
 
-    if len(Axes) < 1:
-        Axes = rpw.db.Collector(view=cView, of_class='Level').get_elements(wrapped=False)
+    if len(Levels) < 1:
+        Levels = rpw.db.Collector(view=cView, of_class='Level').get_elements(wrapped=False)
 
     try:
         with open(tempfile, 'rb') as fp:
-            GridLines = pickle.load(fp)
+            LevelLines = pickle.load(fp)
     except IOError:
         UI.TaskDialog.Show('pyRevitPlus', 'Could not find saved placementof the level.\nSave placement first.')
 
     n=0
 
-    for cAxis in Axes:
-            #axis = cAxis.unwrap()
-            if not(isinstance(cAxis, DB.Level)):
-                cAxis = cAxis.unwrap()
+    for cLevel in Levels:
+            #axis = cLevel.unwrap()
+            if not(isinstance(cLevel, DB.Level)):
+                cLevel = cLevel.unwrap()
             
-            if isinstance(cAxis, DB.Level):
-               # UI.TaskDialog.Show('pyRevitPlus', 'Levle element \'{}\''.format(cAxis.Name))
+            if isinstance(cLevel, DB.Level):
+               # UI.TaskDialog.Show('pyRevitPlus', 'Level element \'{}\''.format(cLevel.Name))
 
-                if cAxis.Name in GridLines:
-                    #UI.TaskDialog.Show('pyRevitPlus', 'Found saved level element \'{}\''.format(cAxis.Name))
-                    curves=cAxis.GetCurvesInView(DB.DatumExtentType.ViewSpecific, cView)
+                if cLevel.Name in LevelLines:
+                    #UI.TaskDialog.Show('pyRevitPlus', 'Found saved level element \'{}\''.format(cLevel.Name))
+                    curves=cLevel.GetCurvesInView(DB.DatumExtentType.ViewSpecific, cView)
                     if len(curves) <> 1:
                         UI.TaskDialog.Show('pyRevitPlus', 'The level line is defind by {} curves, unable to proceed', len(curves))
                     else:
                         cCurve = curves[0]
-                        cGridData = GridLines[cAxis.Name]
+                        cGridData = LevelLines[cLevel.Name]
 
                         tmp = cCurve.GetEndPoint(0)
                         if abs(cView.ViewDirection.X) > abs(cView.ViewDirection.Y):
@@ -99,45 +99,45 @@ else:
                             
                             gridline = DB.Line.CreateBound(pt0, pt1)
 
-                          #  UI.TaskDialog.Show('pyRevitPlus','Restoring endpoints of the level \'{}\''.format(cAxis.Name))
-                            if cAxis.IsCurveValidInView(DB.DatumExtentType.ViewSpecific, cView, gridline):
-                                with rpw.db.Transaction('Restoring view-dependant endpoints if the level \'{}\''.format(cAxis.Name)):
-                                    cAxis.SetCurveInView(DB.DatumExtentType.ViewSpecific, cView, gridline)
+                          #  UI.TaskDialog.Show('pyRevitPlus','Restoring endpoints of the level \'{}\''.format(cLevel.Name))
+                            if cLevel.IsCurveValidInView(DB.DatumExtentType.ViewSpecific, cView, gridline):
+                                with rpw.db.Transaction('Restoring view-dependant endpoints of the level \'{}\''.format(cLevel.Name)):
+                                    cLevel.SetCurveInView(DB.DatumExtentType.ViewSpecific, cView, gridline)
 
-                            #UI.TaskDialog.Show('pyRevitPlus','Restoring level \'{}\' placement'.format(cAxis.Name))
+                            #UI.TaskDialog.Show('pyRevitPlus','Restoring level \'{}\' placement'.format(cLevel.Name))
 
-                            with rpw.db.Transaction('Restoring view-dependant placement of the level \'{}\''.format(cAxis.Name)):
+                            with rpw.db.Transaction('Restoring view-dependant placement of the level \'{}\''.format(cLevel.Name)):
                                 if cGridData['StartBubble'] and cGridData['StartBubbleVisible']:
-                                    cAxis.ShowBubbleInView(DB.DatumEnds.End0, cView)
+                                    cLevel.ShowBubbleInView(DB.DatumEnds.End0, cView)
                                     if 'Leader0Anchor' in cGridData:
-                                        if not cAxis.GetLeader(DB.DatumEnds.End0, cView):
-                                            cLeader = cAxis.AddLeader(DB.DatumEnds.End0, cView)
-                                    #        cLeader = cAxis.GetLeader(DB.DatumEnds.End0, cView)
+                                        if not cLevel.GetLeader(DB.DatumEnds.End0, cView):
+                                            cLeader = cLevel.AddLeader(DB.DatumEnds.End0, cView)
+                                    #        cLeader = cLevel.GetLeader(DB.DatumEnds.End0, cView)
                                     #        cLeader.Anchor = DB.XYZ(cGridData['Leader0Anchor'].X, cGridData['Leader0Anchor'].Y, cGridData['Leader0Anchor'].Z)
                                     #        cLeader.Elbow = DB.XYZ(cGridData['Leader0Elbow'].X, cGridData['Leader0Elbow'].Y, cGridData['Leader0Elbow'].Z)
                                     #        cLeader.End = DB.XYZ(cGridData['Leader0End'].X, cGridData['Leader0End'].Y, cGridData['Leader0End'].Z)
                                             
                                         
                                 else:
-                                    cAxis.HideBubbleInView(DB.DatumEnds.End0, cView)
+                                    cLevel.HideBubbleInView(DB.DatumEnds.End0, cView)
 
                                 if cGridData['EndBubble'] and cGridData['EndBubbleVisible']:
-                                    cAxis.ShowBubbleInView(DB.DatumEnds.End1, cView)
+                                    cLevel.ShowBubbleInView(DB.DatumEnds.End1, cView)
                                     if 'Leader1Anchor' in cGridData:
-                                        if not cAxis.GetLeader(DB.DatumEnds.End1, cView):
-                                            cLeader = cAxis.AddLeader(DB.DatumEnds.End1, cView)
-                                    #        cLeader = cAxis.GetLeader(DB.DatumEnds.End1, cView)
+                                        if not cLevel.GetLeader(DB.DatumEnds.End1, cView):
+                                            cLeader = cLevel.AddLeader(DB.DatumEnds.End1, cView)
+                                    #        cLeader = cLevel.GetLeader(DB.DatumEnds.End1, cView)
                                     #        cLeader.Anchor = DB.XYZ(cGridData['Leader1Anchor'].X, cGridData['Leader1Anchor'].Y, cGridData['Leader1Anchor'].Z)
                                     #        cLeader.Elbow = DB.XYZ(cGridData['Leader1Elbow'].X, cGridData['Leader1Elbow'].Y, cGridData['Leader1Elbow'].Z)
                                     #        cLeader.End = DB.XYZ(cGridData['Leader1End'].X, cGridData['Leader1End'].Y, cGridData['Leader1End'].Z)
                                             
                                 else:
-                                    cAxis.HideBubbleInView(DB.DatumEnds.End1, cView)
+                                    cLevel.HideBubbleInView(DB.DatumEnds.End1, cView)
                             n += 1
                         else:
-                         UI.TaskDialog.Show('pyRevitPlus','Zero lenght segment for Level \'{}\'. \n Probably the level is saved in the perpendicular view. \nSkipping.'.format(cAxis.Name) )
+                         UI.TaskDialog.Show('pyRevitPlus','Zero lenght segment for Level \'{}\'. \n Probably the level is saved in the perpendicular view. \nSkipping.'.format(cLevel.Name) )
     if n<>1:
         msg = 'Restored placement for {} levels'.format(n)
     else:
-        msg = 'Restored placement of the level \'{}\''.format(cAxis.Name)
+        msg = 'Restored placement of the level \'{}\''.format(cLevel.Name)
     UI.TaskDialog.Show('pyRevitPlus',msg)
