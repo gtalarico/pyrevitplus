@@ -80,7 +80,7 @@ for schedule in selected_schedules:
         schedule_name = "".join([x for x in schedule.Title if x.isalnum()])
 
     # Adds random digits to avoid name clash
-    filename = '{}_{}.txt'.format(schedule_name, str(time.time())[-2:])
+    filename = '{}_{}.csv'.format(schedule_name, str(time.time())[-2:])
 
     schedule.Export(temp_folder, filename, export_options)
 
