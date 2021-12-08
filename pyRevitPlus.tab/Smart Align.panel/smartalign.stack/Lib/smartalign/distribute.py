@@ -27,7 +27,7 @@ from Autodesk.Revit.DB import XYZ
 from Autodesk.Revit.DB import Transaction
 
 from core import logger
-from core import Align
+from core import Alignment
 from core import PointElement, PointCollection, BoundingBoxElement
 from core import get_location, get_selected_elements, move_element
 from core import TOLERANCE
@@ -47,31 +47,31 @@ def get_division_steps(delta, qty_items):
 def main(ALIGN):
     """ ADD DOCS
     """
-    align_axis = Align.axis[ALIGN]
-    align_method = Align.method[ALIGN]
+    v = doc.ActiveView
+    alignment = Alignment(ALIGN, v)
 
     logger.info('Align Class: {}'.format(ALIGN))
-    logger.debug('Align Axis: {}'.format(align_axis))
-    logger.debug('Align Methid: {}'.format(align_method))
+    logger.debug('Align Axis: {}'.format(alignment.axis))
+    logger.debug('Align Methid: {}'.format(alignment.method))
 
     elements = get_selected_elements()
     point_collection = PointCollection()
 
     for element in elements:
-        point_element = get_location(element, align_method)
+        point_element = get_location(element, alignment.method)
         if point_element:
             point_element.element = element
             point_collection.points.append(point_element)
 
-    point_collection.sort_points(align_axis)
+    point_collection.sort_points(alignment.axis)
     qty_items = len(point_collection)
 
     min_target = getattr(point_collection, 'min')
     max_target = getattr(point_collection, 'max')
-    delta = getattr(max_target, align_axis) - getattr(min_target, align_axis)
+    delta = getattr(max_target, alignment.axis) - getattr(min_target, alignment.axis)
 
     steps = get_division_steps(delta, qty_items)
-    target_locations = [ getattr(min_target, align_axis) + step for step in steps]
+    target_locations = [ getattr(min_target, alignment.axis) + step for step in steps]
 
     logger.debug('Min Location Target is: {}'.format(min_target))
     logger.debug('Max Location Target is: {}'.format(max_target))
@@ -83,10 +83,10 @@ def main(ALIGN):
     t.Start()
 
     for point_element, target_location in zip(point_collection, target_locations):
-        current_location = getattr(point_element, align_axis)
+        current_location = getattr(point_element, alignment.axis)
         delta = current_location - target_location
         delta_vector = PointElement(0, 0, 0)
-        setattr(delta_vector, align_axis,-delta)
+        setattr(delta_vector, alignment.axis,-delta)
         translation = XYZ(*delta_vector.as_tuple)
 
         move_element(point_element.element, translation)
