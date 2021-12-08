@@ -19,27 +19,30 @@ __version = '0.4.0'
 
 import sys
 import logging
+#from types import MethodWrapperType
 
 from Autodesk.Revit.DB import XYZ
 from Autodesk.Revit.DB import Transaction
+
+from pyrevit.coreutils import logger as _logger
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
 VERBOSE = True  # True to Keep Window Open
-VERBOSE = False
+#VERBOSE = False
 
 LOG_LEVEL = logging.ERROR
 LOG_LEVEL = logging.INFO
 if VERBOSE:
     LOG_LEVEL = logging.DEBUG
 logging.basicConfig(level=LOG_LEVEL)
-logger = logging.getLogger('SmarAlign')
+logger = _logger.get_logger("SmartAlign")
 
 TOLERANCE = 0.000001
 
-class Align(object):
-    """ Align Class.
+class Alignment(object):
+    """ Alignment Class.
     This class defines the name, location method, and axis for each
     alignment type
 
@@ -60,14 +63,44 @@ class Align(object):
     VDIST = 'Vertical Distribution'
     HDIST = 'Horizontal Distrution'
 
-    method = {VCENTER: 'average', VTOP: 'max', VBOTTOM: 'min',
-              HCENTER: 'average', HLEFT: 'min', HRIGHT: 'max',
-              VDIST: 'average', HDIST:'average'}
+    positiveMethod = {VCENTER: 'average', VTOP: 'max', VBOTTOM: 'min',
+            HCENTER: 'average', HLEFT: 'min', HRIGHT: 'max',
+            VDIST: 'average', HDIST:'average'}
 
-    axis = {VCENTER: 'Y', VTOP: 'Y', VBOTTOM: 'Y',
-            HCENTER: 'X', HLEFT: 'X', HRIGHT: 'X',
-            VDIST: 'Y', HDIST:'X'}
+    negativeMethod = {VCENTER: 'average', VTOP: 'min', VBOTTOM: 'max',
+            HCENTER: 'average', HLEFT: 'max', HRIGHT: 'min',
+            VDIST: 'average', HDIST:'average'}
 
+    def __init__(self, ALIGN, view):
+        self.axis = None
+        self.method = None
+
+        # vertical alignments
+        if (ALIGN in (Alignment.VCENTER, Alignment.VTOP, Alignment.VBOTTOM, Alignment.VDIST)):
+            direction = view.UpDirection
+        # horizontal alignments
+        else:
+            direction = view.RightDirection
+
+        # choose axis based on direction
+        if (direction.X > 0.9):
+            self.axis = 'X'
+            self.method = Alignment.positiveMethod[ALIGN]
+        elif (direction.X < -0.9):
+            self.axis = 'X'
+            self.method = Alignment.negativeMethod[ALIGN]
+        elif (direction.Y > 0.9):
+            self.axis = 'Y'
+            self.method = Alignment.positiveMethod[ALIGN]
+        elif (direction.Y < -0.9):
+            self.axis = 'Y'
+            self.method = Alignment.negativeMethod[ALIGN]
+        elif (direction.Z > 0.9):
+            self.axis = 'Z'
+            self.method = Alignment.positiveMethod[ALIGN]
+        elif (direction.Z < -0.9):
+            self.axis = 'Z'
+            self.method = Alignment.negativeMethod[ALIGN]
 
 class PointCollection(object):
     """ Provides methods for getting calculated values from list of Points.
